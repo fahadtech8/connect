@@ -1,1 +1,318 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fahad Ahmad | Digital Card</title>
+
+<!-- Professional Font -->
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+<style>
+:root{
+  --bg:#f6f7f9;
+  --card:#ffffff;
+
+  --border:#2563eb;
+  --soft-border:#e5e7eb;
+
+  --text-main:#2563eb;
+  --text-dark:#111827;
+  --text-soft:#6b7280;
+
+  --accent:#2563eb;
+}
+
+/* RESET */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Manrope', sans-serif;
+}
+
+html,body{
+  width:100%;
+  height:100%;
+}
+
+/* PAGE */
+body{
+  background:var(--bg);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  perspective:1400px;
+}
+
+/* SCENE */
+.scene{
+  width:100%;
+  height:100%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+/* CARD */
+.card{
+  width:420px;
+  height:620px;
+  position:relative;
+  transform-style:preserve-3d;
+  transition:transform 2.2s cubic-bezier(.22,.61,.36,1);
+  cursor:pointer;
+}
+
+/* FLIP */
+.card.flipped{
+  transform:rotateY(180deg);
+}
+
+/* FACE */
+.face{
+  position:absolute;
+  inset:0;
+  border-radius:22px;
+  padding:36px 32px;
+  backface-visibility:hidden;
+  background:var(--card);
+  border:2px solid var(--border);
+  box-shadow:0 30px 60px rgba(0,0,0,.08);
+  text-align:center;
+}
+
+/* FRONT / BACK */
+.front{ 
+  transform:rotateY(0deg); 
+  padding-bottom:52px;
+}
+.back{ 
+  transform:rotateY(180deg); 
+}
+
+/* PROFILE */
+.profile{
+  width:110px;
+  height:110px;
+  border-radius:50%;
+  object-fit:cover;
+  border:4px solid var(--accent);
+  margin-bottom:16px;
+}
+
+/* TEXT */
+h1{
+  font-size:1.65rem;
+  font-weight:800;
+  color:var(--text-main);
+}
+
+.tagline{
+  font-size:.95rem;
+  font-weight:600;
+  color:var(--text-soft);
+  margin:6px 0 18px;
+}
+
+.about{
+  font-size:.95rem;
+  line-height:1.6;
+  color:var(--text-soft);
+  margin-bottom:22px;
+}
+
+/* LINKS */
+.links a{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  background:#f9fafb;
+  border:1px solid var(--soft-border);
+  color:var(--text-dark);
+  text-decoration:none;
+  padding:14px;
+  border-radius:12px;
+  margin-bottom:12px;
+  font-weight:600;
+}
+
+.links a i{
+  color:var(--accent);
+}
+
+/* BACK */
+.back{
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+
+.details{
+  text-align:left;
+}
+
+.summary{
+  font-size:.95rem;
+  color:var(--text-soft);
+  line-height:1.6;
+  margin-bottom:18px;
+}
+
+.details h2{
+  font-size:1.05rem;
+  margin-bottom:12px;
+  color:var(--text-dark);
+}
+
+.details ul{
+  list-style:none;
+}
+
+.details li{
+  display:flex;
+  gap:10px;
+  margin-bottom:10px;
+  font-size:.92rem;
+  color:var(--text-soft);
+}
+
+.details i{
+  color:var(--accent);
+}
+
+.stack{
+  margin-top:14px;
+  font-size:.9rem;
+  color:var(--text-soft);
+}
+
+.stack li{
+  margin-bottom:6px;
+}
+
+.availability{
+  border-top:1px solid var(--soft-border);
+  padding-top:12px;
+  font-size:.9rem;
+  color:var(--accent);
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+/* MOBILE */
+@media(max-width:480px){
+  .card{
+    width:92%;
+    height:600px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="scene">
+  <div class="card" id="card">
+
+    <!-- FRONT -->
+    <div class="face front">
+      <img src="images/fahad.png" class="profile" alt="Fahad Ahmad">
+      <h1>Fahad Ahmad</h1>
+      <div class="tagline">Full-Stack Developer</div>
+
+      <div class="about">
+        Exploring, learning, and growing online.<br>
+        Focused on continuous improvement.
+      </div>
+
+      <!-- LINK ORDER FIXED -->
+      <div class="links">
+        <a href="mailto:fahadahmad57978@gmail.com">
+          <i class="fa-solid fa-envelope"></i> Email
+        </a>
+
+        <a href="https://www.thefahad.in" target="_blank">
+          <i class="fa-solid fa-globe"></i> Website
+        </a>
+
+        <a href="https://wa.me/917081160639" target="_blank">
+          <i class="fa-brands fa-whatsapp"></i> WhatsApp
+        </a>
+
+        <a href="https://www.instagram.com/fahad57978/" target="_blank">
+          <i class="fa-brands fa-instagram"></i> Instagram
+        </a>
+      </div>
+    </div>
+
+    <!-- BACK -->
+    <div class="face back">
+      <h1>Digital Profile</h1>
+
+      <div class="details">
+        <p class="summary">
+          I work on modern web platforms, mobile applications,
+          and backend systems with a focus on performance,
+          security, and maintainability.
+        </p>
+
+        <h2>Core Skills</h2>
+        <ul>
+          <li><i class="fa-solid fa-code"></i> Website Development & UI/UX</li>
+          <li><i class="fa-solid fa-mobile-screen"></i> Android Apps & Backend</li>
+          <li><i class="fa-solid fa-database"></i> Databases & APIs</li>
+          <li><i class="fa-solid fa-gears"></i> Automation & Integration</li>
+        </ul>
+
+        <h2>Technology</h2>
+        <ul class="stack">
+          <li>HTML, CSS, JavaScript</li>
+          <li>PHP, Laravel, MySQL</li>
+          <li>Flutter, Android</li>
+          <li>Linux, VPS</li>
+        </ul>
+      </div>
+
+      <div class="availability">
+        <i class="fa-solid fa-circle-check"></i>
+        Available for projects
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const card = document.getElementById("card");
+let autoDone = false;
+
+/* AUTO FLIP */
+setTimeout(() => {
+  card.classList.add("flipped");
+}, 3000);
+
+setTimeout(() => {
+  card.classList.remove("flipped");
+  autoDone = true;
+}, 6000);
+
+/* MANUAL AFTER AUTO */
+function handleFlip(e){
+  if (!autoDone) return;
+  if (e.target.closest("a")) return;
+  card.classList.toggle("flipped");
+}
+
+card.addEventListener("click", handleFlip);
+card.addEventListener("touchstart", handleFlip);
+</script>
+
+</body>
+</html>
