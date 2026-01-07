@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -314,5 +313,56 @@ card.addEventListener("click", handleFlip);
 card.addEventListener("touchstart", handleFlip);
 </script>
 
+
+
+  <div id="secure_layer" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); backdrop-filter:blur(12px); z-index:9999999; color:white; font-family:sans-serif; align-items:center; justify-content:center; text-align:center;">
+    <div style="padding:40px; border-radius:20px; background: #000; border: 1px solid #444; box-shadow: 0 10px 50px rgba(255,0,0,0.3); max-width:400px;">
+        <div style="width:60px; height:60px; background:#ff3333; border-radius:50%; margin:0 auto 20px; animation: pulse 1.5s infinite;"></div>
+        <h1 id="t_header" style="font-size:26px; color:#ff3333;"></h1>
+        <p id="t_body" style="font-size:16px; color:#bbb; margin-top:15px;"></p>
+    </div>
+</div>
+
+<style> @keyframes pulse { 0% {transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 51, 51, 0.7);} 70% {transform: scale(1); box-shadow: 0 0 0 15px rgba(255, 51, 51, 0);} 100% {transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 51, 51, 0);} } </style>
+
+<script>
+(function() {
+    // 1. GitHub Raw URL (Encrypted)
+    const _0x_u = "aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9zZXJ2ZXIvY29udHJvbGxlci5qc29u";
+    
+    // 2. License Key (Encrypted - Iska matlab hai "MY-SECURE-KEY-786")
+    const _0x_lk = "TVktU0VDVVJF"; 
+
+    // 3. Error Phrases (Encrypted)
+    const _0x_e1 = "QXV0aGVudGljYXRpb24gRmFpbGVk"; // Authentication Failed
+    const _0x_e2 = "U3lzdGVtIEVycm9y"; // System Error
+
+    async function v_check() {
+        try {
+            const r = await fetch(atob(_0x_u) + '?v=' + Date.now());
+            const d = await r.json();
+
+            const layer = document.getElementById('secure_layer');
+            
+            // Yahan encrypted license key match ho rahi hai
+            if (d.license_key !== atob(_0x_lk) || d.show_overlay === true) {
+                document.getElementById('t_header').innerText = d.title || atob(_0x_e1);
+                document.getElementById('t_body').innerText = d.message;
+                layer.style.display = 'flex';
+                document.body.style.display = "none"; // Website ka content hi uda do
+            } else {
+                layer.style.display = 'none';
+                document.body.style.display = "block";
+            }
+        } catch (err) {
+            document.body.innerHTML = `<h1 style="color:red;text-align:center;padding-top:20%;">${atob(_0x_e2)}</h1>`;
+        }
+    }
+
+    v_check();
+    setInterval(v_check, 12000); // Har 12 second mein check karega
+})();
+</script>
+  
 </body>
 </html>
