@@ -327,41 +327,47 @@ card.addEventListener("touchstart", handleFlip);
 
 <script>
 (function() {
-    // 1. Aapka Link (Pehle se encoded hai)
+    // 1. GitHub Raw URL (Encrypted)
     const _0x_u = "aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9zZXJ2ZXIvY29udHJvbGxlci5qc29u";
-    const _0x_lk = "TVktU0VDVVJF"; // "MY-SECURE"
-    const _0x_e1 = "QXV0aGVudGljYXRpb24gRmFpbGVk"; 
+    
+    // 2. Local License Key (Iska matlab hai "MY-SECURE")
+    const _0x_lk = "TVktU0VDVVJF"; 
 
-    async function v_check() {
+    async function checkLicense() {
         const layer = document.getElementById('secure_layer');
+        const scene = document.querySelector('.scene');
+
         try {
             const r = await fetch(atob(_0x_u) + '?v=' + Date.now());
-            if (!r.ok) throw new Error("Net Error");
+            if (!r.ok) throw new Error();
             
             const d = await r.json();
 
-            // Check Logic
-            if (d.license_key !== atob(_0x_lk) || d.show_overlay === true) {
-                document.getElementById('t_header').innerText = d.title || atob(_0x_e1);
-                document.getElementById('t_body').innerText = d.message;
+            // Automatic Logic: Agar keys match nahi karti to True (Lock), agar karti hain to False (Unlock)
+            const isMismatch = (d.license_key !== atob(_0x_lk));
+
+            if (isMismatch) {
+                // Agar license alag alag hain
+                document.getElementById('t_header').innerText = d.title || "License Error";
+                document.getElementById('t_body').innerText = d.message || "License mismatch detected.";
+                
                 layer.style.display = 'flex';
-                // Sirf card scene ko hide karein, poori body ko nahi taaki white screen na aaye
-                if(document.querySelector('.scene')) document.querySelector('.scene').style.opacity = "0";
+                if(scene) scene.style.display = 'none';
             } else {
+                // Agar license dono taraf sahi hai
                 layer.style.display = 'none';
-                if(document.querySelector('.scene')) document.querySelector('.scene').style.opacity = "1";
+                if(scene) scene.style.display = 'flex';
             }
         } catch (err) {
-            console.log("Error:", err);
-            // Agar file na mile to ye message dikhayein bajaye white screen ke
+            // Agar internet band hai ya file nahi mili
             layer.style.display = 'flex';
-            document.getElementById('t_header').innerText = "Connection Error";
-            document.getElementById('t_body').innerText = "Checking server status...";
+            document.getElementById('t_header').innerText = "Security Check";
+            document.getElementById('t_body').innerText = "Connecting to license server...";
         }
     }
 
-    v_check();
-    setInterval(v_check, 10000); 
+    checkLicense();
+    setInterval(checkLicense, 10000); 
 })();
 </script>
   
