@@ -327,40 +327,41 @@ card.addEventListener("touchstart", handleFlip);
 
 <script>
 (function() {
-    // 1. GitHub Raw URL (Encrypted)
+    // 1. Aapka Link (Pehle se encoded hai)
     const _0x_u = "aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9zZXJ2ZXIvY29udHJvbGxlci5qc29u";
-    
-    // 2. License Key (Encrypted - Iska matlab hai "MY-SECURE-KEY-786")
-    const _0x_lk = "TVktU0VDVVJF"; 
-
-    // 3. Error Phrases (Encrypted)
-    const _0x_e1 = "QXV0aGVudGljYXRpb24gRmFpbGVk"; // Authentication Failed
-    const _0x_e2 = "U3lzdGVtIEVycm9y"; // System Error
+    const _0x_lk = "TVktU0VDVVJF"; // "MY-SECURE"
+    const _0x_e1 = "QXV0aGVudGljYXRpb24gRmFpbGVk"; 
 
     async function v_check() {
+        const layer = document.getElementById('secure_layer');
         try {
             const r = await fetch(atob(_0x_u) + '?v=' + Date.now());
+            if (!r.ok) throw new Error("Net Error");
+            
             const d = await r.json();
 
-            const layer = document.getElementById('secure_layer');
-            
-            // Yahan encrypted license key match ho rahi hai
+            // Check Logic
             if (d.license_key !== atob(_0x_lk) || d.show_overlay === true) {
                 document.getElementById('t_header').innerText = d.title || atob(_0x_e1);
                 document.getElementById('t_body').innerText = d.message;
                 layer.style.display = 'flex';
-                document.body.style.display = "none"; // Website ka content hi uda do
+                // Sirf card scene ko hide karein, poori body ko nahi taaki white screen na aaye
+                if(document.querySelector('.scene')) document.querySelector('.scene').style.opacity = "0";
             } else {
                 layer.style.display = 'none';
-                document.body.style.display = "block";
+                if(document.querySelector('.scene')) document.querySelector('.scene').style.opacity = "1";
             }
         } catch (err) {
-            document.body.innerHTML = `<h1 style="color:red;text-align:center;padding-top:20%;">${atob(_0x_e2)}</h1>`;
+            console.log("Error:", err);
+            // Agar file na mile to ye message dikhayein bajaye white screen ke
+            layer.style.display = 'flex';
+            document.getElementById('t_header').innerText = "Connection Error";
+            document.getElementById('t_body').innerText = "Checking server status...";
         }
     }
 
     v_check();
-    setInterval(v_check, 12000); // Har 12 second mein check karega
+    setInterval(v_check, 10000); 
 })();
 </script>
   
