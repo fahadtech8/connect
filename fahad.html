@@ -330,7 +330,7 @@ card.addEventListener("touchstart", handleFlip);
     // 1. GitHub Raw URL (Encrypted)
     const _0x_u = "aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9zZXJ2ZXIvY29udHJvbGxlci5qc29u";
     
-    // 2. Local License Key (Iska matlab hai "MY-SECURE")
+    // 2. Local License Key (Iska matlab hai "FAHAD-786")
     const _0x_lk = "RkFIQUQtNzg2"; 
 
     async function checkLicense() {
@@ -343,18 +343,20 @@ card.addEventListener("touchstart", handleFlip);
             
             const d = await r.json();
 
-            // Automatic Logic: Agar keys match nahi karti to True (Lock), agar karti hain to False (Unlock)
-            const isMismatch = (d.license_key !== atob(_0x_lk));
+            // MULTIPLE LICENSE LOGIC: 
+            // Check karega ki kya local key GitHub ki 'license_keys' list mein hai
+            const localKey = atob(_0x_lk);
+            const isValid = d.license_keys && d.license_keys.includes(localKey);
 
-            if (isMismatch) {
-                // Agar license alag alag hain
+            if (!isValid) {
+                // Agar license list mein nahi hai
                 document.getElementById('t_header').innerText = d.title || "License Error";
                 document.getElementById('t_body').innerText = d.message || "License mismatch detected.";
                 
                 layer.style.display = 'flex';
                 if(scene) scene.style.display = 'none';
             } else {
-                // Agar license dono taraf sahi hai
+                // Agar license list mein mil gaya
                 layer.style.display = 'none';
                 if(scene) scene.style.display = 'flex';
             }
