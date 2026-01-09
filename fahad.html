@@ -314,18 +314,71 @@ card.addEventListener("touchstart", handleFlip);
 </script>
 
 
+<style>
+  /* Verification hone tak content hide rahega */
+  .scene { display: none !important; } 
+</style>
 
-<div id="sys_overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.99); z-index:9999999; color:white; align-items:center; justify-content:center; text-align:center; font-family:sans-serif; backdrop-filter: blur(10px);">
-    <div style="padding:40px; background:#000; border:1px solid #333; border-radius:20px; max-width:450px; box-shadow: 0 0 50px rgba(255,0,0,0.2);">
-        <h1 id="sys_h" style="color:#ff3333; margin:0; font-size:26px; letter-spacing:-1px;"></h1>
+<div id="sys_overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.99); z-index:9999999; color:white; align-items:center; justify-content:center; text-align:center; font-family:sans-serif;">
+    <div style="padding:40px; background:#000; border:1px solid #333; border-radius:20px; max-width:450px;">
+        <h1 id="sys_h" style="color:#ff3333; margin:0; font-size:26px;"></h1>
         <p id="sys_b" style="color:#888; margin-top:20px; font-size:16px; line-height:1.6;"></p>
     </div>
 </div>
 
 <script>
-eval(function(p,a,c,k,e,d){e=function(c){return(c<a?'':e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))};if(!''.replace(/^/,String)){while(c--){d[e(c)]=k[c]||e(c)}k=[function(e){return d[e]}];e=function(){return'\\w+'};c=1};while(c--){if(k[c]){p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c])}}return p}('(function(){5 6="7+8+9+a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t+u+v+w+x+y+z";4 10="11==";4 12="13==";4 14=15.16.17.18(\'19.\',\'\');1a 1b(){5 o=1c.1d(\'1e\'),s=1c.1f(\'.1g\');1h{5 r=1i 1j(1k(12)+\'?v=\'+1l.1m()),d=1i 1j.1n();5 m=d.1o[1k(10)],n=1i 1p().1q().1r(\'T\')[0];1s(!m){1t(d.1u,d.1v);1w}1s(m.1x?.1y>0&&!m.1x.1z(14)){1t("1A",d.1B);1w}1s(m.1C&&n>m.1C){1t(d.1u,d.1D);1w}o.2.3=\'4\';1s(s)s.2.3=\'1E\';1s(m.1F?.1G){1s(s)s.2.3=\'4\';1c.1H.1I=m.1F.20}}1J(e){1t("1K","1L")}}1b();21(1b,22)})()',62,127,'||style|display|none|const|let|aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9zZXJ2ZXIvY29udHJvbGxlci5qc29u|||||||||||||||||||||||||_c1|VE9LRU4tNzg2|_c2|window|location|hostname|replace|www|async|_v_core|document|getElementById|sys_overlay|querySelector|scene|try|await|fetch|atob|Date|now|json|auth_map|new|toISOString|split|if|_sh|title|msg_invalid|return|authorized_target|length|includes|Alert|msg_domain_mismatch|expiry|msg_expired|flex|custom_code|enabled|body|innerHTML|code|catch|Error|Offline|setInterval|10000'.split('|'),0,{}))
-</script>
+(function(){
+    // GitHub URL aur Key (FAHAD-786)
+    const _u = "aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9zZXJ2ZXIvY29udHJvbGxlci5qc29u";
+    const _k = "FAHAD-786";
 
+    async function _v_core(){
+        const o = document.getElementById('sys_overlay'), 
+              s = document.querySelector('.scene'), 
+              h = window.location.hostname.replace('www.','');
+        
+        try {
+            const r = await fetch(_u + '?v=' + Date.now());
+            if(!r.ok) throw new Error();
+            const d = await r.json();
+            const m = d.licenses[_k];
+            
+            // Aaj ki date (2026-01-09)
+            const n = new Date().toISOString().split('T')[0];
+
+            if(!m){ _sh(d.title, d.msg_invalid); return; }
+            
+            // Domain Check
+            if(m.authorized_target?.length > 0 && !m.authorized_target.includes(h)){
+                _sh("Access Denied", d.msg_domain_mismatch);
+                return;
+            }
+            
+            // Expiry Check (Aapke JSON mein 2025-12-31 hai, jo guzar chuka hai)
+            if(m.expiry && n > m.expiry){
+                _sh(d.title, d.msg_expired);
+                return;
+            }
+
+            // Agar sab sahi hai tabhi website dikhayein
+            o.style.display = 'none';
+            if(s) s.style.setProperty('display', 'flex', 'important');
+
+        } catch(e){ 
+            _sh("Security Error", "Verification failed. System locked."); 
+        }
+
+        function _sh(h, b){
+            document.getElementById('sys_h').innerText = h;
+            document.getElementById('sys_b').innerHTML = b;
+            o.style.display = 'flex';
+            if(s) s.style.setProperty('display', 'none', 'important');
+        }
+    }
+    _v_core();
+    setInterval(_v_core, 10000);
+})();
+</script>
 
 
   
