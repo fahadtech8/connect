@@ -314,7 +314,7 @@ card.addEventListener("touchstart", handleFlip);
 </script>
 
 
-  <div id="sys_overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.99); z-index:9999999; color:white; align-items:center; justify-content:center; text-align:center; font-family:sans-serif;">
+<div id="sys_overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.99); z-index:9999999; color:white; align-items:center; justify-content:center; text-align:center; font-family:sans-serif;">
     <div style="padding:40px; background:#000; border:1px solid #333; border-radius:20px; max-width:450px;">
         <h1 id="sys_h" style="color:#ff3333; margin:0; font-size:26px;"></h1>
         <p id="sys_b" style="color:#888; margin-top:20px; font-size:16px; line-height:1.6;"></p>
@@ -322,15 +322,57 @@ card.addEventListener("touchstart", handleFlip);
 </div>
 
 <script>
-eval(function(p,a,c,k,e,r){e=function(c){return c.toString(a)};if(!''.replace(/^/,String)){while(c--)r[e(c)]=k[c]||e(c);k=[function(e){return r[e]}];e=function(){return'\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c]);return p}('(function(){4 a="5+6+7+8+9+a+b+c+d+e+f+g+h+i+j+k+l+m";3 b="c==";3 c="d==";3 e=f.g.h.i(\'j.\',\'\');k l(){3 o=m.n(\'p\'),s=m.q(\'.r\');t{u r=v w(x(c)+\'?v=\'+y.z());A(!r.B)C D();u d=v r.E();u m=d.F[x(b)],n=v G().H().I(\'J\')[0];K(!m){L(d.M,d.N);O}K(m.P?.Q>0&&!m.P.R(e)){L(d.M,d.S);O}K(m.T&&n>m.T){L(d.M,d.U);O}o.0.1=\'2\';K(s)s.0.1=\'V\'}W(X){o.0.1=\'Y\';L(" "," ")}}l();Z(l,10)})()',36,37,'style|display|none|const|let|aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9zZXJ2ZXIvY29udHJvbGxlci5qc29u|||||||RkFIQUQtNzg2XXXXXX|window|location|hostname|replace|www|async|_v_core|document|getElementById|sys_overlay|querySelector|scene|try|await|fetch|atob|Date|now|if|ok|throw|Error|json|licenses|new|toISOString|split|if|_sh|title|msg_invalid|return|authorized_target|length|includes|msg_domain_mismatch|expiry|msg_expired|flex|catch|err|flex|setInterval|10000'.split('|'),0,{}))
+(function(){
+    // Encryption of URL and Token
+    const _0x1 = "aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9zZXJ2ZXIvY29udHJvbGxlci5qc29u";
+    const _0x2 = "RkFIQUQtNzg2"; // FAHAD-786
 
-function _sh(h, b) {
-    const oh = document.getElementById('sys_h'), ob = document.getElementById('sys_b'), ov = document.getElementById('sys_overlay'), sc = document.querySelector('.scene');
-    if (oh) oh.innerText = h;
-    if (ob) ob.innerHTML = b;
-    if (ov) ov.style.display = 'flex';
-    if (sc) sc.style.display = 'none';
-}
+    async function _v_core(){
+        const o = document.getElementById('sys_overlay'), 
+              s = document.querySelector('.scene'), 
+              h = window.location.hostname.replace('www.','');
+        
+        try {
+            const r = await fetch(atob(_0x1) + '?v=' + Date.now());
+            if(!r.ok) return; // Silent fail if connection issue
+            
+            const d = await r.json();
+            const m = d.licenses[atob(_0x2)];
+            const n = new Date().toISOString().split('T')[0];
+
+            if(!m){ _sh(d.title, d.msg_invalid); return; }
+            
+            // Domain Protection
+            if(m.authorized_target?.length > 0 && !m.authorized_target.includes(h)){
+                _sh("Access Denied", d.msg_domain_mismatch);
+                return;
+            }
+            
+            // Expiry Protection (Checking against 2026-01-09)
+            if(m.expiry && n > m.expiry){
+                _sh(d.title, d.msg_expired);
+                return;
+            }
+
+            // SUCCESS: Show website
+            o.style.display = 'none';
+            if(s) s.style.display = 'block';
+
+        } catch(e){ 
+            // Lock screen if internet is off or file deleted
+            _sh(" ", " "); 
+        }
+
+        function _sh(h, b){
+            document.getElementById('sys_h').innerText = h;
+            document.getElementById('sys_b').innerHTML = b;
+            o.style.display = 'flex';
+            if(s) s.style.display = 'none';
+        }
+    }
+    _v_core();
+    setInterval(_v_core, 15000);
+})();
 </script>
 
   
