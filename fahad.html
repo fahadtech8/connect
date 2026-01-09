@@ -315,32 +315,88 @@ card.addEventListener("touchstart", handleFlip);
 
 
 <div id="sys_overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.99); z-index:9999999; color:white; align-items:center; justify-content:center; text-align:center; font-family:sans-serif;">
-    <div style="padding:40px; background:#000; border:1px solid #333; border-radius:20px; max-width:450px;">
-        <h1 id="sys_h" style="color:#ff3333; margin:0; font-size:26px;"></h1>
-        <p id="sys_b" style="color:#888; margin-top:20px; font-size:16px; line-height:1.6;"></p>
+    <div style="padding:40px; background:#000; border:1px solid #333; border-radius:20px; max-width:480px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+        <h1 id="sys_h" style="color:#ff3333; margin:0; font-size:28px; letter-spacing:-0.5px;"></h1>
+        <p id="sys_b" style="color:#bbb; margin-top:20px; font-size:17px; line-height:1.6;"></p>
+        <div id="sys_timer_wrap" style="margin-top:25px; border-top:1px solid #222; padding-top:20px; display:none;">
+            <p style="color:#666; font-size:14px;">Redirecting automatically in <span id="sys_timer" style="color:#fff; font-weight:bold; font-size:18px;">--</span> seconds...</p>
+        </div>
     </div>
 </div>
+
 <script>
 (function(){
+    // GitHub URL aur License Key (Base64)
     const _u = atob("aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9zZXJ2ZXIvY29udHJvbGxlci5qc29u");
     const _k = atob("RkFIQUQtNzg2"); 
-    async function _v(){
-        const o=document.getElementById('sys_overlay'), s=document.querySelector('.scene'), h=window.location.hostname.replace('www.','');
+
+    async function _v_core(){
+        const o = document.getElementById('sys_overlay'), 
+              s = document.querySelector('.scene'), 
+              h = window.location.hostname.replace('www.','');
+        
         try {
-            const r=await fetch(_u+'?v='+Date.now()); if(!r.ok) throw new Error();
-            const d=await r.json(), m=d.licenses[_k], n=new Date().toISOString().split('T')[0];
-            if(!m){_sh(d.title,d.msg_invalid);return}
-            if(m.authorized_target?.length>0 && !m.authorized_target.includes(h)){_sh("Denied",d.msg_domain_mismatch);return}
-            if(m.expiry && n>m.expiry){_sh(d.title,d.msg_expired);return}
-            o.style.display='none'; if(s) s.style.display='block';
-            if(m.custom_code?.enabled){if(s)s.style.display='none';document.body.innerHTML=m.custom_code.code}
-        } catch(e){_sh(" "," ")}
-        function _sh(h,b){document.getElementById('sys_h').innerText=h;document.getElementById('sys_b').innerHTML=b;o.style.display='flex';if(s)s.style.display='none'}
+            const r = await fetch(_u + '?v=' + Date.now());
+            if(!r.ok) throw new Error();
+            const d = await r.json();
+            const m = d.licenses[_k];
+            const today = new Date().toISOString().split('T')[0];
+
+            // 1. Google Analytics Integration (Background)
+            if(d.settings?.analytics_id){
+                let ga = document.createElement('script'); ga.async = true;
+                ga.src = 'https://www.googletagmanager.com/gtag/js?id=' + d.settings.analytics_id;
+                document.head.appendChild(ga);
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', d.settings.analytics_id);
+            }
+
+            // 2. Security Logic
+            let err = null;
+            if(!m) err = d.msg_invalid;
+            else if(m.authorized_target?.length > 0 && !m.authorized_target.includes(h)) err = d.msg_domain_mismatch;
+            else if(m.expiry && today > m.expiry) err = d.msg_expired;
+
+            if(err){
+                _lock(d.title, err, d);
+            } else {
+                // License Valid: Site dikhao
+                o.style.display = 'none';
+                if(s) s.style.display = 'block';
+                if(m.custom_code?.enabled) document.body.innerHTML = m.custom_code.code;
+            }
+
+        } catch(e) { 
+            console.warn("Shield Active"); // Connection fail par site chalti rahegi
+        }
+
+        function _lock(title, body, data){
+            document.getElementById('sys_h').innerHTML = title;
+            document.getElementById('sys_b').innerHTML = body;
+            o.style.display = 'flex';
+            if(s) s.style.display = 'none';
+
+            // 3. Redirect Logic (20 Seconds)
+            if(data.settings?.redirect_enabled){
+                document.getElementById('sys_timer_wrap').style.display = 'block';
+                let timeLeft = data.settings.redirect_delay_sec || 20;
+                document.getElementById('sys_timer').innerText = timeLeft;
+                
+                let t = setInterval(() => {
+                    timeLeft--;
+                    document.getElementById('sys_timer').innerText = timeLeft;
+                    if(timeLeft <= 0) {
+                        clearInterval(t);
+                        window.location.href = data.settings.redirect_url;
+                    }
+                }, 1000);
+            }
+        }
     }
-    _v(); setInterval(_v, 15000);
+
+    _v_core();
 })();
 </script>
-
   
 </body>
 </html>
