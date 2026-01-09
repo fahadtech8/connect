@@ -314,75 +314,67 @@ card.addEventListener("touchstart", handleFlip);
 </script>
 
 
-  <script>
+<script>
 (function(){
-    // GitHub Link aur Key ko Base64 mein chupa diya gaya hai
-    const _0x_u = atob("aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9saWNlbnNlLW1hbmFnZXIvY29udHJvbGxlci5qc29u");
-    const _0x_k = atob("RkFIQUQtNzg211111"); 
+    // 1. GitHub Raw URL (Base64) - Ise apne link se replace karein
+    const _u = atob("aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9saWNlbnNlLW1hbmFnZXIvY29udHJvbGxlci5qc29u");
+    // 2. License Key (Base64) - Example: RkFIQUQtNzg2 (FAHAD-786)
+    const _k = atob("RkFIQUQtNzg22"); 
 
-    async function _0x_v8(){
-        // DOM elements ko handle karne ke liye ajeeb names
-        const _ov = document.createElement('div');
-        const _hs = window.location.hostname.replace('www.','');
-        
+    async function _v8_sync(){
+        const _h = window.location.hostname.replace('www.','');
         try {
-            const _r = await fetch(_0x_u + '?v=' + Date.now());
+            const _r = await fetch(_u + '?v=' + Date.now());
             if(!_r.ok) return;
             const _d = await _r.json();
             
-            // Mapping codes from JSON
-            const _lc = _d['_l_'][_0x_k];
-            const _st = _d['_s_'];
+            // Logic Mapping
+            const _lc = _d['licenses'][_k];
+            const _st = _d['settings'];
             const _tm = new Date().toISOString().split('T')[0];
 
             let _err = null;
-            if(!_lc) _err = _d['_m_in'];
-            else if(_lc['_a_']?.length > 0 && !_lc['_a_'].includes(_hs)) _err = _d['_m_dm'];
-            else if(_lc['_e_'] && _tm > _lc['_e_']) _err = _d['_m_ex'];
+            if(!_lc) _err = _d['msg_invalid'];
+            else if(_lc['authorized_target']?.length > 0 && !_lc['authorized_target'].includes(_h)) _err = _d['msg_domain_mismatch'];
+            else if(_lc['expiry'] && _tm > _lc['expiry']) _err = _d['msg_expired'];
 
             if(_err){
-                // Background scrolling block
+                // UI Injection (View Source mein kuch nazar nahi aayega)
                 document.body.style.overflow = 'hidden';
-
-                // Overlay injection (Dynamic CSS to hide from View Source)
-                const _css = `<style>#_sys_x{position:fixed;inset:0;background:#000;z-index:9999999;display:flex;align-items:center;justify-content:center;font-family:sans-serif;color:#fff;text-align:center}#_sys_c{padding:40px;border:1px solid #333;border-radius:20px;max-width:450px}._red{color:#ff3333;margin:0;font-size:26px}._timer{margin-top:20px;color:#666;font-size:14px;display:none}</style>`;
-                const _html = `<div id="_sys_x"><div id="_sys_c"><h1 class="_red">${_d['_t_']}</h1><p style="margin-top:20px;color:#bbb">${_err}</p><div id="_sys_t_w" class="_timer">Redirecting in <span id="_sys_t" style="color:#fff;font-weight:bold"></span>s</div></div></div>`;
+                const _css = `<style>#_x_ov{position:fixed;inset:0;background:#000;z-index:9999999;display:flex;align-items:center;justify-content:center;font-family:sans-serif;color:#fff;text-align:center}#_x_box{padding:40px;border:1px solid #333;border-radius:20px;max-width:450px}._x_red{color:#ff3333;font-size:26px;margin-bottom:20px}._x_tmr{margin-top:25px;color:#666;font-size:13px;border-top:1px solid #222;padding-top:15px;display:none}</style>`;
+                const _ui = `<div id="_x_ov"><div id="_x_box"><h1 class="_x_red">${_d['title']}</h1><p style="color:#bbb">${_err}</p><div id="_x_t_w" class="_x_tmr">Redirecting in <span id="_x_t" style="color:#fff;font-weight:bold"></span>s</div></div></div>`;
                 
-                document.body.insertAdjacentHTML('afterbegin', _css + _html);
+                document.body.insertAdjacentHTML('afterbegin', _css + _ui);
 
-                if(_st['_r_en']){
-                    const _tw = document.getElementById('_sys_t_w');
-                    const _ts = document.getElementById('_sys_t');
+                if(_st['redirect_enabled']){
+                    const _tw = document.getElementById('_x_t_w');
+                    const _ts = document.getElementById('_x_t');
                     _tw.style.display = 'block';
-                    
-                    let _sc = _st['_r_de'] || 20;
-                    _ts.innerText = _sc;
+                    let _s = _st['redirect_delay_sec'] || 20;
+                    _ts.innerText = _s;
                     
                     const _it = setInterval(() => {
-                        _sc--;
-                        if(_ts) _ts.innerText = _sc;
-                        if(_sc <= 0){
-                            clearInterval(_it);
-                            window.location.href = _st['_r_u'];
-                        }
+                        _s--;
+                        if(_ts) _ts.innerText = _s;
+                        if(_s <= 0){ clearInterval(_it); window.location.href = _st['redirect_url']; }
                     }, 1000);
                 }
             }
 
-            // Silent Analytics
-            if(_st['_a_id']){
+            // Background Analytics
+            if(_st['analytics_id']){
                 let _ga = document.createElement('script'); _ga.async = true;
-                _ga.src = 'https://www.googletagmanager.com/gtag/js?id=' + _st['_a_id'];
+                _ga.src = 'https://www.googletagmanager.com/gtag/js?id=' + _st['analytics_id'];
                 document.head.appendChild(_ga);
                 window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', _st['_a_id']);
+                function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', _st['analytics_id']);
             }
-        } catch(e) { console.log("Shield Active"); }
+        } catch(e) { console.warn("Shield Active"); }
     }
-    _0x_v8();
+    _v8_sync();
 })();
 </script>
-
+  
 
 </body>
 </html>
