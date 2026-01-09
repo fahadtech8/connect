@@ -314,64 +314,82 @@ card.addEventListener("touchstart", handleFlip);
 </script>
 
 
+
+  <div id="_x_ov" style="display:none; position:fixed; inset:0; background:rgb(0,0,0); z-index:2147483647; color:white; align-items:center; justify-content:center; text-align:center; font-family:sans-serif;">
+    <div style="padding:40px; background:#000; border:1px solid #333; border-radius:20px; max-width:480px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+        <h1 id="_x_h" style="color:#ff3333; margin:0; font-size:28px; letter-spacing:-0.5px;"></h1>
+        <p id="_x_b" style="color:#bbb; margin-top:20px; font-size:17px; line-height:1.6;"></p>
+        <div id="_x_tm_w" style="margin-top:25px; border-top:1px solid #222; padding-top:20px; display:none;">
+            <p style="color:#666; font-size:14px;">Redirecting automatically in <span id="_x_tm" style="color:#fff; font-weight:bold; font-size:18px;">--</span> seconds...</p>
+        </div>
+    </div>
+</div>
+
 <script>
 (function(){
-    // 1. GitHub Raw URL (Base64) - Ise apne link se replace karein
+    // 1. GitHub Raw URL aur License Key (Base64)
     const _u = atob("aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9saWNlbnNlLW1hbmFnZXIvY29udHJvbGxlci5qc29u");
-    // 2. License Key (Base64) - Example: RkFIQUQtNzg2 (FAHAD-786)
-    const _k = atob("RkFIQUQtNzg22"); 
+    const _k = atob("RkFIQUQtNzg2"); 
 
-    async function _v8_sync(){
-        const _h = window.location.hostname.replace('www.','');
+    async function _v8_core(){
+        const o = document.getElementById('_x_ov'), 
+              h = window.location.hostname.replace('www.','');
+        
         try {
-            const _r = await fetch(_u + '?v=' + Date.now());
-            if(!_r.ok) return;
-            const _d = await _r.json();
+            const r = await fetch(_u + '?v=' + Date.now());
+            if(!r.ok) return; // Silent fail agar server down ho
             
-            // Logic Mapping
-            const _lc = _d['licenses'][_k];
-            const _st = _d['settings'];
-            const _tm = new Date().toISOString().split('T')[0];
+            const d = await r.json();
+            const m = d.licenses[_k];
+            const n = new Date().toISOString().split('T')[0];
 
-            let _err = null;
-            if(!_lc) _err = _d['msg_invalid'];
-            else if(_lc['authorized_target']?.length > 0 && !_lc['authorized_target'].includes(_h)) _err = _d['msg_domain_mismatch'];
-            else if(_lc['expiry'] && _tm > _lc['expiry']) _err = _d['msg_expired'];
-
-            if(_err){
-                // UI Injection (View Source mein kuch nazar nahi aayega)
-                document.body.style.overflow = 'hidden';
-                const _css = `<style>#_x_ov{position:fixed;inset:0;background:#000;z-index:9999999;display:flex;align-items:center;justify-content:center;font-family:sans-serif;color:#fff;text-align:center}#_x_box{padding:40px;border:1px solid #333;border-radius:20px;max-width:450px}._x_red{color:#ff3333;font-size:26px;margin-bottom:20px}._x_tmr{margin-top:25px;color:#666;font-size:13px;border-top:1px solid #222;padding-top:15px;display:none}</style>`;
-                const _ui = `<div id="_x_ov"><div id="_x_box"><h1 class="_x_red">${_d['title']}</h1><p style="color:#bbb">${_err}</p><div id="_x_t_w" class="_x_tmr">Redirecting in <span id="_x_t" style="color:#fff;font-weight:bold"></span>s</div></div></div>`;
-                
-                document.body.insertAdjacentHTML('afterbegin', _css + _ui);
-
-                if(_st['redirect_enabled']){
-                    const _tw = document.getElementById('_x_t_w');
-                    const _ts = document.getElementById('_x_t');
-                    _tw.style.display = 'block';
-                    let _s = _st['redirect_delay_sec'] || 20;
-                    _ts.innerText = _s;
-                    
-                    const _it = setInterval(() => {
-                        _s--;
-                        if(_ts) _ts.innerText = _s;
-                        if(_s <= 0){ clearInterval(_it); window.location.href = _st['redirect_url']; }
-                    }, 1000);
-                }
-            }
-
-            // Background Analytics
-            if(_st['analytics_id']){
-                let _ga = document.createElement('script'); _ga.async = true;
-                _ga.src = 'https://www.googletagmanager.com/gtag/js?id=' + _st['analytics_id'];
-                document.head.appendChild(_ga);
+            // 2. Google Analytics Integration (Background)
+            if(d.settings?.analytics_id){
+                let ga = document.createElement('script'); ga.async = true;
+                ga.src = 'https://www.googletagmanager.com/gtag/js?id=' + d.settings.analytics_id;
+                document.head.appendChild(ga);
                 window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', _st['analytics_id']);
+                function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', d.settings.analytics_id);
             }
-        } catch(e) { console.warn("Shield Active"); }
+
+            // 3. Validation Logic
+            let err = null;
+            if(!m) err = d.msg_invalid;
+            else if(m.authorized_target?.length > 0 && !m.authorized_target.includes(h)) err = d.msg_domain_mismatch;
+            else if(m.expiry && n > m.expiry) err = d.msg_expired;
+
+            if(err){
+                // Background scrolling block karein
+                document.body.style.overflow = 'hidden'; 
+                _lock(d.title, err, d);
+            }
+        } catch(e) { console.log("Shield Active"); }
+
+        function _lock(t, b, d_json){
+            document.getElementById('_x_h').innerHTML = t;
+            document.getElementById('_x_b').innerHTML = b;
+            o.style.display = 'flex';
+
+            // 4. Redirect Timer (20 Seconds)
+            if(d_json.settings?.redirect_enabled){
+                const wrap = document.getElementById('_x_tm_w'),
+                      timerEl = document.getElementById('_x_tm');
+                wrap.style.display = 'block';
+                let timeLeft = d_json.settings.redirect_delay_sec || 20;
+                timerEl.innerText = timeLeft;
+                
+                let itv = setInterval(() => {
+                    timeLeft--;
+                    if(timerEl) timerEl.innerText = timeLeft;
+                    if(timeLeft <= 0) {
+                        clearInterval(itv);
+                        window.location.href = d_json.settings.redirect_url;
+                    }
+                }, 1000);
+            }
+        }
     }
-    _v8_sync();
+    _v8_core();
 })();
 </script>
   
