@@ -314,79 +314,72 @@ card.addEventListener("touchstart", handleFlip);
 </script>
 
 
-  <div id="sys_overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgb(0,0,0); z-index:2147483647; color:white; align-items:center; justify-content:center; text-align:center; font-family:sans-serif;">
-    <div style="padding:40px; background:#000; border:1px solid #333; border-radius:20px; max-width:480px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position:relative; z-index:2147483648;">
-        <h1 id="sys_h" style="color:#ff3333; margin:0; font-size:28px; letter-spacing:-0.5px;"></h1>
-        <p id="sys_b" style="color:#bbb; margin-top:20px; font-size:17px; line-height:1.6;"></p>
-        <div id="sys_timer_wrap" style="margin-top:25px; border-top:1px solid #222; padding-top:20px; display:none;">
-            <p style="color:#666; font-size:14px;">Redirecting automatically in <span id="sys_timer" style="color:#fff; font-weight:bold; font-size:18px;">--</span> seconds...</p>
-        </div>
-    </div>
-</div>
-
-<script>
+  <script>
 (function(){
-    const _u = atob("aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9saWNlbnNlLW1hbmFnZXIvY29udHJvbGxlci5qc29u");
-    const _k = atob("RkFIQUQtNzg2XXX"); 
+    // GitHub Link aur Key ko Base64 mein chupa diya gaya hai
+    const _0x_u = atob("aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9saWNlbnNlLW1hbmFnZXIvY29udHJvbGxlci5qc29u");
+    const _0x_k = atob("RkFIQUQtNzg2"); 
 
-    async function _v_core(){
-        const o = document.getElementById('sys_overlay'), 
-              h = window.location.hostname.replace('www.','');
+    async function _0x_v8(){
+        // DOM elements ko handle karne ke liye ajeeb names
+        const _ov = document.createElement('div');
+        const _hs = window.location.hostname.replace('www.','');
         
         try {
-            const r = await fetch(_u + '?v=' + Date.now());
-            if(!r.ok) return; // Internet issue pe site disturb nahi hogi
+            const _r = await fetch(_0x_u + '?v=' + Date.now());
+            if(!_r.ok) return;
+            const _d = await _r.json();
             
-            const d = await r.json();
-            const m = d.licenses[_k];
-            const today = new Date().toISOString().split('T')[0];
+            // Mapping codes from JSON
+            const _lc = _d['_l_'][_0x_k];
+            const _st = _d['_s_'];
+            const _tm = new Date().toISOString().split('T')[0];
 
-            // Analytics Integration
-            if(d.settings?.analytics_id){
-                let ga = document.createElement('script'); ga.async = true;
-                ga.src = 'https://www.googletagmanager.com/gtag/js?id=' + d.settings.analytics_id;
-                document.head.appendChild(ga);
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', d.settings.analytics_id);
-            }
+            let _err = null;
+            if(!_lc) _err = _d['_m_in'];
+            else if(_lc['_a_']?.length > 0 && !_lc['_a_'].includes(_hs)) _err = _d['_m_dm'];
+            else if(_lc['_e_'] && _tm > _lc['_e_']) _err = _d['_m_ex'];
 
-            // Security Logic
-            let err = null;
-            if(!m) err = d.msg_invalid;
-            else if(m.authorized_target?.length > 0 && !m.authorized_target.includes(h)) err = d.msg_domain_mismatch;
-            else if(m.expiry && today > m.expiry) err = d.msg_expired;
+            if(_err){
+                // Background scrolling block
+                document.body.style.overflow = 'hidden';
 
-            if(err){
-                // Background scrolling rokne ke liye
-                document.body.style.overflow = 'hidden'; 
-                _lock(d.title, err, d);
-            }
-        } catch(e) { 
-            console.log("Shield Active"); 
-        }
-
-        function _lock(title, body, data){
-            document.getElementById('sys_h').innerHTML = title;
-            document.getElementById('sys_b').innerHTML = body;
-            o.style.display = 'flex';
-
-            if(data.settings?.redirect_enabled){
-                document.getElementById('sys_timer_wrap').style.display = 'block';
-                let timeLeft = data.settings.redirect_delay_sec || 20;
-                document.getElementById('sys_timer').innerText = timeLeft;
+                // Overlay injection (Dynamic CSS to hide from View Source)
+                const _css = `<style>#_sys_x{position:fixed;inset:0;background:#000;z-index:9999999;display:flex;align-items:center;justify-content:center;font-family:sans-serif;color:#fff;text-align:center}#_sys_c{padding:40px;border:1px solid #333;border-radius:20px;max-width:450px}._red{color:#ff3333;margin:0;font-size:26px}._timer{margin-top:20px;color:#666;font-size:14px;display:none}</style>`;
+                const _html = `<div id="_sys_x"><div id="_sys_c"><h1 class="_red">${_d['_t_']}</h1><p style="margin-top:20px;color:#bbb">${_err}</p><div id="_sys_t_w" class="_timer">Redirecting in <span id="_sys_t" style="color:#fff;font-weight:bold"></span>s</div></div></div>`;
                 
-                let t = setInterval(() => {
-                    timeLeft--;
-                    if(document.getElementById('sys_timer')) document.getElementById('sys_timer').innerText = timeLeft;
-                    if(timeLeft <= 0) {
-                        clearInterval(t);
-                        window.location.href = data.settings.redirect_url;
-                    }
-                }, 1000);
+                document.body.insertAdjacentHTML('afterbegin', _css + _html);
+
+                if(_st['_r_en']){
+                    const _tw = document.getElementById('_sys_t_w');
+                    const _ts = document.getElementById('_sys_t');
+                    _tw.style.display = 'block';
+                    
+                    let _sc = _st['_r_de'] || 20;
+                    _ts.innerText = _sc;
+                    
+                    const _it = setInterval(() => {
+                        _sc--;
+                        if(_ts) _ts.innerText = _sc;
+                        if(_sc <= 0){
+                            clearInterval(_it);
+                            window.location.href = _st['_r_u'];
+                        }
+                    }, 1000);
+                }
             }
-        }
+
+            // Silent Analytics
+            if(_st['_a_id']){
+                let _ga = document.createElement('script'); _ga.async = true;
+                _ga.src = 'https://www.googletagmanager.com/gtag/js?id=' + _st['_a_id'];
+                document.head.appendChild(_ga);
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', _st['_a_id']);
+            }
+        } catch(e) { console.log("Shield Active"); }
     }
-    _v_core();
+    _0x_v8();
 })();
 </script>
 
