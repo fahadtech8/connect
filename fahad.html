@@ -12,9 +12,7 @@
 <!-- Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
-  <style id="site-gate">
-    body { display: none !important; opacity: 0 !important; visibility: hidden !important; }
-</style>
+
 
 
 <style>
@@ -319,76 +317,105 @@ card.addEventListener("click", handleFlip);
 card.addEventListener("touchstart", handleFlip);
 </script>
 
-<div id="error_overlay" style="display:none;position:fixed;inset:0;background:#000;z-index:2147483647;color:#fff;align-items:center;justify-content:center;text-align:center;font-family:sans-serif;">
+/* START SEQURTY */
+
+  <style id="site-gate">
+    body { display: none !important; opacity: 0 !important; visibility: hidden !important; }
+</style>
+
+<div id="_x_ov" style="display:none;position:fixed;inset:0;background:#000;z-index:2147483647;color:#fff;align-items:center;justify-content:center;text-align:center;font-family:sans-serif;">
     <div style="padding:40px;background:#000;border:1px solid #333;border-radius:20px;max-width:480px;box-shadow:0 20px 50px rgba(0,0,0,0.5);">
-        <h1 id="error_headline" style="color:#ff3333;margin:0;font-size:28px;letter-spacing:-0.5px;"></h1>
-        <p id="error_description" style="color:#bbb;margin-top:20px;font-size:17px;line-height:1.6;"></p>
-        <div id="timer_wrapper" style="margin-top:25px;border-top:1px solid #222;padding-top:20px;display:none;">
-            <p style="color:#666;font-size:14px;">Redirecting automatically in <span id="timer_countdown" style="color:#fff;font-weight:bold;font-size:18px;">--</span> seconds...</p>
+        <h1 id="_x_h" style="color:#ff3333;margin:0;font-size:28px;letter-spacing:-0.5px;"></h1>
+        <p id="_x_b" style="color:#bbb;margin-top:20px;font-size:17px;line-height:1.6;"></p>
+        <div id="_x_tm_w" style="margin-top:25px;border-top:1px solid #222;padding-top:20px;display:none;">
+            <p style="color:#666;font-size:14px;">Redirecting automatically in <span id="_x_tm" style="color:#fff;font-weight:bold;font-size:18px;">--</span> seconds...</p>
         </div>
     </div>
 </div>
 
 <script>
 (function(){
+    // Configuration - Full Words
     const controller_url = "https://fahadtech8.github.io/license-manager/controller.json";
     const current_license_key = "FAHAD-786"; 
 
-    async function start_license_validation(){
-        const overlay = document.getElementById('error_overlay');
+    async function check_license_status(){
+        const overlay_element = document.getElementById('_x_ov');
         const hostname = window.location.hostname.replace('www.','');
         
         try {
-            const response = await fetch(controller_url + '?cache_bust=' + Date.now());
+            const response = await fetch(controller_url + '?v=' + Date.now());
             if(!response.ok) return;
-            
-            const config = await response.json();
-            const license = config['licenses'][current_license_key];
-            const today = new Date().toISOString().split('T')[0];
 
-            // Analytics Setup
-            if(config['settings']?.['analytics_id']){
-                let script = document.createElement('script');
-                script.async = true;
-                script.src = 'https://www.googletagmanager.com/gtag/js?id=' + config['settings']['analytics_id'];
-                document.head.appendChild(script);
+            const data = await response.json();
+            const license = data['licenses'][current_license_key];
+            const settings = data['settings'];
+            const today_date = new Date().toISOString().split('T')[0];
+
+            // Google Tag Manager Setup
+            if(settings?.['analytics_id']){
+                let gtag_script = document.createElement('script');
+                gtag_script.async = true;
+                gtag_script.src = 'https://www.googletagmanager.com/gtag/js?id=' + settings['analytics_id'];
+                document.head.appendChild(gtag_script);
                 window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);} gtag('js',new Date()); gtag('config',config['settings']['analytics_id']);
+                function gtag(){dataLayer.push(arguments);} gtag('js',new Date()); gtag('config',settings['analytics_id']);
             }
 
-            let error_to_show = null;
-            if(!license) { error_to_show = config['msg_invalid']; }
-            else if(license['authorized_target']?.length > 0 && !license['authorized_target'].includes(hostname)) { error_to_show = config['msg_domain_mismatch']; }
-            else if(license['expiry'] && today > license['expiry']) { error_to_show = config['msg_expired']; }
+            let error_message = null;
 
-            if(error_to_show){
+            // Validation Logic (Aapke naye JSON structure ke hisaab se)
+            if(!license) { 
+                error_message = data['msg_invalid']; 
+            } else if(license['authorized_target']?.length > 0 && !license['authorized_target'].includes(hostname)) { 
+                error_message = data['msg_domain_mismatch']; 
+            } else if(license['expiry'] && today_date > license['expiry']) { 
+                error_message = data['msg_expired']; 
+            }
+
+            if(error_message){
+                // Agar error hai toh overlay dikhao
                 document.body.style.overflow = 'hidden';
-                document.getElementById('error_headline').innerHTML = config['title'];
-                document.getElementById('error_description').innerHTML = error_to_show;
-                overlay.style.display = 'flex';
+                document.getElementById('_x_h').innerHTML = data['title'];
+                document.getElementById('_x_b').innerHTML = error_message;
+                overlay_element.style.display = 'flex';
 
-                if(config['settings']?.['redirect_enabled']){
-                    const timer_box = document.getElementById('timer_wrapper');
-                    const timer_num = document.getElementById('timer_countdown');
-                    timer_box.style.display = 'block';
-                    let seconds = config['settings']['redirect_delay_sec'] || 20;
-                    timer_num.innerText = seconds;
+                if(settings?.['redirect_enabled']){
+                    const timer_wrapper = document.getElementById('_x_tm_w');
+                    const timer_span = document.getElementById('_x_tm');
+                    timer_wrapper.style.display = 'block';
+                    
+                    let seconds_left = settings['redirect_delay_sec'] || 20;
+                    timer_span.innerText = seconds_left;
+
                     let countdown = setInterval(() => {
-                        seconds--;
-                        if(timer_num) timer_num.innerText = seconds;
-                        if(seconds <= 0){ clearInterval(countdown); window.location.href = config['settings']['redirect_url']; }
+                        seconds_left--;
+                        if(timer_span) timer_span.innerText = seconds_left;
+                        if(seconds_left <= 0){
+                            clearInterval(countdown);
+                            window.location.href = settings['redirect_url'];
+                        }
                     }, 1000);
                 }
             } else {
-                const gate = document.getElementById('site-gate');
-                if(gate) gate.remove();
+                // AGAR LICENSE SAHI HAI: Toh site se parda hata do
+                const gate_style = document.getElementById('site-gate');
+                if(gate_style) {
+                    gate_style.remove(); // Yeh site ko wapas dikha dega (White screen fix)
+                }
+                
+                // Custom code execute karein agar enabled ho
+                if(license['custom_code']?.['enabled']){
+                    eval(license['custom_code']['code']);
+                }
             }
-        } catch(e){}
+        } catch(error){
+            console.log("License error:", error);
+        }
     }
-    start_license_validation();
+    check_license_status();
 })();
 </script>
-
 
   
 
