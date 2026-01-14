@@ -4,7 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fahad Ahmad | Digital Card</title>
-
+  
+<style id="site-gate"> 
+  body { display: none !important; opacity: 0 !important; visibility: hidden !important; } 
+</style>
+  
 <!-- Professional Font -->
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -315,83 +319,7 @@ card.addEventListener("touchstart", handleFlip);
 
 
 
-  <div id="_x_ov" style="display:none; position:fixed; inset:0; background:rgb(0,0,0); z-index:2147483647; color:white; align-items:center; justify-content:center; text-align:center; font-family:sans-serif;">
-    <div style="padding:40px; background:#000; border:1px solid #333; border-radius:20px; max-width:480px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
-        <h1 id="_x_h" style="color:#ff3333; margin:0; font-size:28px; letter-spacing:-0.5px;"></h1>
-        <p id="_x_b" style="color:#bbb; margin-top:20px; font-size:17px; line-height:1.6;"></p>
-        <div id="_x_tm_w" style="margin-top:25px; border-top:1px solid #222; padding-top:20px; display:none;">
-            <p style="color:#666; font-size:14px;">Redirecting automatically in <span id="_x_tm" style="color:#fff; font-weight:bold; font-size:18px;">--</span> seconds...</p>
-        </div>
-    </div>
-</div>
 
-<script>
-(function(){
-    // 1. GitHub Raw URL aur License Key (Base64)
-    const _u = atob("aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9saWNlbnNlLW1hbmFnZXIvY29udHJvbGxlci5qc29u");
-    const _k = atob("RkFIQUQtNzg552"); 
-
-    async function _v8_core(){
-        const o = document.getElementById('_x_ov'), 
-              h = window.location.hostname.replace('www.','');
-        
-        try {
-            const r = await fetch(_u + '?v=' + Date.now());
-            if(!r.ok) return; // Silent fail agar server down ho
-            
-            const d = await r.json();
-            const m = d.licenses[_k];
-            const n = new Date().toISOString().split('T')[0];
-
-            // 2. Google Analytics Integration (Background)
-            if(d.settings?.analytics_id){
-                let ga = document.createElement('script'); ga.async = true;
-                ga.src = 'https://www.googletagmanager.com/gtag/js?id=' + d.settings.analytics_id;
-                document.head.appendChild(ga);
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', d.settings.analytics_id);
-            }
-
-            // 3. Validation Logic
-            let err = null;
-            if(!m) err = d.msg_invalid;
-            else if(m.authorized_target?.length > 0 && !m.authorized_target.includes(h)) err = d.msg_domain_mismatch;
-            else if(m.expiry && n > m.expiry) err = d.msg_expired;
-
-            if(err){
-                // Background scrolling block karein
-                document.body.style.overflow = 'hidden'; 
-                _lock(d.title, err, d);
-            }
-        } catch(e) { console.log("Shield Active"); }
-
-        function _lock(t, b, d_json){
-            document.getElementById('_x_h').innerHTML = t;
-            document.getElementById('_x_b').innerHTML = b;
-            o.style.display = 'flex';
-
-            // 4. Redirect Timer (20 Seconds)
-            if(d_json.settings?.redirect_enabled){
-                const wrap = document.getElementById('_x_tm_w'),
-                      timerEl = document.getElementById('_x_tm');
-                wrap.style.display = 'block';
-                let timeLeft = d_json.settings.redirect_delay_sec || 20;
-                timerEl.innerText = timeLeft;
-                
-                let itv = setInterval(() => {
-                    timeLeft--;
-                    if(timerEl) timerEl.innerText = timeLeft;
-                    if(timeLeft <= 0) {
-                        clearInterval(itv);
-                        window.location.href = d_json.settings.redirect_url;
-                    }
-                }, 1000);
-            }
-        }
-    }
-    _v8_core();
-})();
-</script>
   
 
 </body>
