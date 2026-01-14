@@ -12,6 +12,12 @@
 <!-- Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
+  <style id="site-gate"> 
+    /* Jab tak license verify na ho, site ko hide rakho */
+    body { display: none !important; opacity: 0 !important; visibility: hidden !important; } 
+</style>
+
+
 <style>
 :root{
   --bg:#f6f7f9;
@@ -316,109 +322,8 @@ card.addEventListener("touchstart", handleFlip);
 
 
 
-
-
-<style id="site-gate"> 
-    /* Jab tak license verify na ho, site ko hide rakho */
-    body { display: none !important; opacity: 0 !important; visibility: hidden !important; } 
-</style>
-
-
-
   
-<div id="error_overlay" style="display:none; position:fixed; inset:0; background:#000; z-index:2147483647; color:#fff; align-items:center; justify-content:center; text-align:center; font-family:sans-serif;">
-    <div style="padding:40px; background:#000; border:1px solid #333; border-radius:20px; max-width:480px; box-shadow:0 20px 50px rgba(0,0,0,0.5);">
-        <h1 id="error_title" style="color:#ff3333; margin:0; font-size:28px; letter-spacing:-0.5px;"></h1>
-        <p id="error_body" style="color:#bbb; margin-top:20px; font-size:17px; line-height:1.6;"></p>
-        
-        <div id="redirect_timer_wrapper" style="margin-top:25px; border-top:1px solid #222; padding-top:20px; display:none;">
-            <p style="color:#666; font-size:14px;">Redirecting automatically in <span id="timer_seconds" style="color:#fff; font-weight:bold; font-size:18px;">--</span> seconds...</p>
-        </div>
-    </div>
-</div>
 
-<script>
-(function(){
-    // Configuration
-    const controllerUrl = "https://fahadtech8.github.io/license-manager/controller.json";
-    const licenseKey = "FAHAD-786"; 
-
-    async function validateLicense() {
-        const overlay = document.getElementById('error_overlay');
-        const currentHostname = window.location.hostname.replace('www.', '');
-        
-        try {
-            // Server se data fetch karna
-            const response = await fetch(controllerUrl + '?cache_bust=' + Date.now());
-            if (!response.ok) return;
-
-            const data = await response.json();
-            const licenseInfo = data['licenses'][licenseKey];
-            const today = new Date().toISOString().split('T')[0];
-
-            // Google Tag Manager Setup (Optional)
-            if (data['settings']?.['analytics_id']) {
-                let scriptTag = document.createElement('script');
-                scriptTag.async = true;
-                scriptTag.src = 'https://www.googletagmanager.com/gtag/js?id=' + data['settings']['analytics_id'];
-                document.head.appendChild(scriptTag);
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){ dataLayer.push(arguments); }
-                gtag('js', new Date());
-                gtag('config', data['settings']['analytics_id']);
-            }
-
-            let errorMessage = null;
-
-            // License Checks
-            if (!licenseInfo) {
-                errorMessage = data['msg_invalid'];
-            } else if (licenseInfo['allowed_domains']?.length > 0 && !licenseInfo['allowed_domains'].includes(currentHostname)) {
-                errorMessage = data['msg_domain_mismatch'];
-            } else if (licenseInfo['expiry_date'] && today > licenseInfo['expiry_date']) {
-                errorMessage = data['msg_expired'];
-            }
-
-            // Agar license fail ho gaya
-            if (errorMessage) {
-                document.body.style.overflow = 'hidden';
-                document.getElementById('error_title').innerHTML = data['title'];
-                document.getElementById('error_body').innerHTML = errorMessage;
-                overlay.style.display = 'flex';
-
-                // Redirection Logic
-                if (data['settings']?.['redirect_enabled']) {
-                    const timerWrapper = document.getElementById('redirect_timer_wrapper');
-                    const timerDisplay = document.getElementById('timer_seconds');
-                    
-                    timerWrapper.style.display = 'block';
-                    let secondsLeft = data['settings']['redirect_delay'] || 20;
-                    timerDisplay.innerText = secondsLeft;
-
-                    let countdown = setInterval(() => {
-                        secondsLeft--;
-                        if (timerDisplay) timerDisplay.innerText = secondsLeft;
-                        
-                        if (secondsLeft <= 0) {
-                            clearInterval(countdown);
-                            window.location.href = data['settings']['redirect_url'];
-                        }
-                    }, 1000);
-                }
-            } else {
-                // Agar license sahi hai toh site dikha do
-                const gateStyle = document.getElementById('site-gate');
-                if (gateStyle) gateStyle.remove();
-            }
-        } catch (error) {
-            console.error("License verification failed", error);
-        }
-    }
-
-    validateLicense();
-})();
-</script>
-  
   
 
 </body>
