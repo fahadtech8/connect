@@ -319,7 +319,75 @@ card.addEventListener("click", handleFlip);
 card.addEventListener("touchstart", handleFlip);
 </script>
 
+<div id="error_overlay" style="display:none;position:fixed;inset:0;background:#000;z-index:2147483647;color:#fff;align-items:center;justify-content:center;text-align:center;font-family:sans-serif;">
+    <div style="padding:40px;background:#000;border:1px solid #333;border-radius:20px;max-width:480px;box-shadow:0 20px 50px rgba(0,0,0,0.5);">
+        <h1 id="error_headline" style="color:#ff3333;margin:0;font-size:28px;letter-spacing:-0.5px;"></h1>
+        <p id="error_description" style="color:#bbb;margin-top:20px;font-size:17px;line-height:1.6;"></p>
+        <div id="timer_wrapper" style="margin-top:25px;border-top:1px solid #222;padding-top:20px;display:none;">
+            <p style="color:#666;font-size:14px;">Redirecting automatically in <span id="timer_countdown" style="color:#fff;font-weight:bold;font-size:18px;">--</span> seconds...</p>
+        </div>
+    </div>
+</div>
 
+<script>
+(function(){
+    const controller_url = "https://fahadtech8.github.io/license-manager/controller.json";
+    const current_license_key = "FAHAD-786"; 
+
+    async function start_license_validation(){
+        const overlay = document.getElementById('error_overlay');
+        const hostname = window.location.hostname.replace('www.','');
+        
+        try {
+            const response = await fetch(controller_url + '?cache_bust=' + Date.now());
+            if(!response.ok) return;
+            
+            const config = await response.json();
+            const license = config['licenses'][current_license_key];
+            const today = new Date().toISOString().split('T')[0];
+
+            // Analytics Setup
+            if(config['settings']?.['analytics_id']){
+                let script = document.createElement('script');
+                script.async = true;
+                script.src = 'https://www.googletagmanager.com/gtag/js?id=' + config['settings']['analytics_id'];
+                document.head.appendChild(script);
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);} gtag('js',new Date()); gtag('config',config['settings']['analytics_id']);
+            }
+
+            let error_to_show = null;
+            if(!license) { error_to_show = config['msg_invalid']; }
+            else if(license['authorized_target']?.length > 0 && !license['authorized_target'].includes(hostname)) { error_to_show = config['msg_domain_mismatch']; }
+            else if(license['expiry'] && today > license['expiry']) { error_to_show = config['msg_expired']; }
+
+            if(error_to_show){
+                document.body.style.overflow = 'hidden';
+                document.getElementById('error_headline').innerHTML = config['title'];
+                document.getElementById('error_description').innerHTML = error_to_show;
+                overlay.style.display = 'flex';
+
+                if(config['settings']?.['redirect_enabled']){
+                    const timer_box = document.getElementById('timer_wrapper');
+                    const timer_num = document.getElementById('timer_countdown');
+                    timer_box.style.display = 'block';
+                    let seconds = config['settings']['redirect_delay_sec'] || 20;
+                    timer_num.innerText = seconds;
+                    let countdown = setInterval(() => {
+                        seconds--;
+                        if(timer_num) timer_num.innerText = seconds;
+                        if(seconds <= 0){ clearInterval(countdown); window.location.href = config['settings']['redirect_url']; }
+                    }, 1000);
+                }
+            } else {
+                const gate = document.getElementById('site-gate');
+                if(gate) gate.remove();
+            }
+        } catch(e){}
+    }
+    start_license_validation();
+})();
+</script>
 
 
   
