@@ -317,107 +317,101 @@ card.addEventListener("click", handleFlip);
 card.addEventListener("touchstart", handleFlip);
 </script>
 
-/* START SEQURTY */
+/* START FAHAD */
 
-  <style id="site-gate">
+<style id="site-gate">
     body { display: none !important; opacity: 0 !important; visibility: hidden !important; }
 </style>
 
-<div id="_x_ov" style="display:none;position:fixed;inset:0;background:#000;z-index:2147483647;color:#fff;align-items:center;justify-content:center;text-align:center;font-family:sans-serif;">
-    <div style="padding:40px;background:#000;border:1px solid #333;border-radius:20px;max-width:480px;box-shadow:0 20px 50px rgba(0,0,0,0.5);">
-        <h1 id="_x_h" style="color:#ff3333;margin:0;font-size:28px;letter-spacing:-0.5px;"></h1>
-        <p id="_x_b" style="color:#bbb;margin-top:20px;font-size:17px;line-height:1.6;"></p>
-        <div id="_x_tm_w" style="margin-top:25px;border-top:1px solid #222;padding-top:20px;display:none;">
-            <p style="color:#666;font-size:14px;">Redirecting automatically in <span id="_x_tm" style="color:#fff;font-weight:bold;font-size:18px;">--</span> seconds...</p>
+<div id="_x_ov" style="display:none; position:fixed; inset:0; background:#000; z-index:2147483647; color:#fff; align-items:center; justify-content:center; text-align:center; font-family:sans-serif;">
+    <div style="padding:40px; background:#000; border:1px solid #333; border-radius:20px; max-width:480px; box-shadow:0 20px 50px rgba(0,0,0,0.5);">
+        <h1 id="_x_h" style="color:#ff3333; margin:0; font-size:28px; letter-spacing:-0.5px;"></h1>
+        <p id="_x_b" style="color:#bbb; margin-top:20px; font-size:17px; line-height:1.6;"></p>
+        <div id="_x_tm_w" style="margin-top:25px; border-top:1px solid #222; padding-top:20px; display:none;">
+            <p style="color:#666; font-size:14px;">Redirecting automatically in <span id="_x_tm" style="color:#fff; font-weight:bold; font-size:18px;">--</span> seconds...</p>
         </div>
     </div>
 </div>
 
 <script>
 (function(){
-    // Configuration - Full Words
+    // Configuration
     const controller_url = "https://fahadtech8.github.io/license-manager/controller.json";
     const current_license_key = "FAHAD-786"; 
 
-    async function check_license_status(){
-        const overlay_element = document.getElementById('_x_ov');
-        const hostname = window.location.hostname.replace('www.','');
+    async function start_security_check() {
+        const overlay_ui = document.getElementById('_x_ov');
+        const site_gate_css = document.getElementById('site-gate');
+        const hostname = window.location.hostname.replace('www.', '');
         
         try {
             const response = await fetch(controller_url + '?v=' + Date.now());
-            if(!response.ok) return;
+            
+            // Agar server response nahi deta, toh hum site block hi rakhenge
+            if (!response.ok) return;
 
-            const data = await response.json();
-            const license = data['licenses'][current_license_key];
-            const settings = data['settings'];
-            const today_date = new Date().toISOString().split('T')[0];
+            const config = await response.json();
+            const license = config['licenses'][current_license_key];
+            const settings = config['settings'];
+            const today = new Date().toISOString().split('T')[0];
 
-            // Google Tag Manager Setup
-            if(settings?.['analytics_id']){
-                let gtag_script = document.createElement('script');
-                gtag_script.async = true;
-                gtag_script.src = 'https://www.googletagmanager.com/gtag/js?id=' + settings['analytics_id'];
-                document.head.appendChild(gtag_script);
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);} gtag('js',new Date()); gtag('config',settings['analytics_id']);
+            let failure_message = null;
+
+            // 1. Validation Logic
+            if (!license) { 
+                failure_message = config['msg_invalid']; 
+            } else if (license['authorized_target']?.length > 0 && !license['authorized_target'].includes(hostname)) { 
+                failure_message = config['msg_domain_mismatch']; 
+            } else if (license['expiry'] && today > license['expiry']) { 
+                failure_message = config['msg_expired']; 
             }
 
-            let error_message = null;
-
-            // Validation Logic (Aapke naye JSON structure ke hisaab se)
-            if(!license) { 
-                error_message = data['msg_invalid']; 
-            } else if(license['authorized_target']?.length > 0 && !license['authorized_target'].includes(hostname)) { 
-                error_message = data['msg_domain_mismatch']; 
-            } else if(license['expiry'] && today_date > license['expiry']) { 
-                error_message = data['msg_expired']; 
-            }
-
-            if(error_message){
-                // Agar error hai toh overlay dikhao
+            // 2. Action based on validation
+            if (failure_message) {
+                // AGAR LICENSE GALAT HAI:
+                document.body.style.display = 'block'; // Body ko block karo taaki overlay dikhe
                 document.body.style.overflow = 'hidden';
-                document.getElementById('_x_h').innerHTML = data['title'];
-                document.getElementById('_x_b').innerHTML = error_message;
-                overlay_element.style.display = 'flex';
+                document.getElementById('_x_h').innerHTML = config['title'];
+                document.getElementById('_x_b').innerHTML = failure_message;
+                overlay_ui.style.setProperty('display', 'flex', 'important'); // Overlay ko forced show karo
 
-                if(settings?.['redirect_enabled']){
-                    const timer_wrapper = document.getElementById('_x_tm_w');
-                    const timer_span = document.getElementById('_x_tm');
-                    timer_wrapper.style.display = 'block';
+                if (settings?.['redirect_enabled']) {
+                    const timer_box = document.getElementById('_x_tm_w');
+                    const timer_text = document.getElementById('_x_tm');
+                    timer_box.style.display = 'block';
                     
-                    let seconds_left = settings['redirect_delay_sec'] || 20;
-                    timer_span.innerText = seconds_left;
+                    let seconds = settings['redirect_delay_sec'] || 20;
+                    timer_text.innerText = seconds;
 
-                    let countdown = setInterval(() => {
-                        seconds_left--;
-                        if(timer_span) timer_span.innerText = seconds_left;
-                        if(seconds_left <= 0){
-                            clearInterval(countdown);
+                    let timer_interval = setInterval(() => {
+                        seconds--;
+                        if (timer_text) timer_text.innerText = seconds;
+                        if (seconds <= 0) {
+                            clearInterval(timer_interval);
                             window.location.href = settings['redirect_url'];
                         }
                     }, 1000);
                 }
             } else {
-                // AGAR LICENSE SAHI HAI: Toh site se parda hata do
-                const gate_style = document.getElementById('site-gate');
-                if(gate_style) {
-                    gate_style.remove(); // Yeh site ko wapas dikha dega (White screen fix)
-                }
+                // AGAR LICENSE SAHI HAI:
+                if (site_gate_css) site_gate_css.remove(); // CSS hata do, site dikh jayegi
                 
-                // Custom code execute karein agar enabled ho
-                if(license['custom_code']?.['enabled']){
-                    eval(license['custom_code']['code']);
+                // Analytics load karein
+                if (settings?.['analytics_id']) {
+                    let script = document.createElement('script');
+                    script.async = true;
+                    script.src = 'https://www.googletagmanager.com/gtag/js?id=' + settings['analytics_id'];
+                    document.head.appendChild(script);
                 }
             }
-        } catch(error){
-            console.log("License error:", error);
+        } catch (err) {
+            console.error("Security System Error");
         }
     }
-    check_license_status();
+
+    start_security_check();
 })();
 </script>
-
-  
 
 </body>
 </html>
